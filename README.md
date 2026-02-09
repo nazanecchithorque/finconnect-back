@@ -6,23 +6,23 @@ Este documento proporciona una visión general de la estructura del proyecto bac
 
 El proyecto sigue una arquitectura por capas, separando las responsabilidades en diferentes módulos para facilitar el mantenimiento y la escalabilidad.
 
--   `index.ts`: Punto de entrada de la aplicación.
--   `app.ts`: Archivo principal de la aplicación Express, donde se configuran las rutas y middlewares.
--   `src/`: Contiene el código fuente de la aplicación.
-    -   `controllers/`: Reciben las peticiones HTTP y utilizan los servicios para procesarlas.
-    -   `services/`: Contienen la lógica de negocio y se comunican con la base de datos.
-    -   `routes/`: Definen las rutas de la API y las asocian con los controladores.
-    -   `schemas/`: Definen los esquemas de la base de datos utilizando Drizzle ORM.
-    -   `validators/`: Contienen los esquemas de validación de datos utilizando Zod.
-    -   `middlewares/`: Contienen los middlewares de Express, como autenticación y manejo de errores.
-    -   `filters/`: Contienen los filtros para las consultas a la base de datos.
-    -   `errors/`: Clases de error personalizadas.
-    -   `lib/`: Librerías y funciones de utilidad.
-    -   `db.ts`: Configuración de la conexión a la base de datos.
-    -   `env.ts`: Configuración de las variables de entorno.
--   `seeders/`: Contiene los seeders para poblar la base de datos con datos de prueba.
--   `tests/`: Contiene los tests de la aplicación.
--   `migrations/`: Contiene las migraciones de la base de datos.
+- `index.ts`: Punto de entrada de la aplicación.
+- `app.ts`: Archivo principal de la aplicación Express, donde se configuran las rutas y middlewares.
+- `src/`: Contiene el código fuente de la aplicación.
+    - `controllers/`: Reciben las peticiones HTTP y utilizan los servicios para procesarlas.
+    - `services/`: Contienen la lógica de negocio y se comunican con la base de datos.
+    - `routes/`: Definen las rutas de la API y las asocian con los controladores.
+    - `schemas/`: Definen los esquemas de la base de datos utilizando Drizzle ORM.
+    - `validators/`: Contienen los esquemas de validación de datos utilizando Zod.
+    - `middlewares/`: Contienen los middlewares de Express, como autenticación y manejo de errores.
+    - `filters/`: Contienen los filtros para las consultas a la base de datos.
+    - `errors/`: Clases de error personalizadas.
+    - `lib/`: Librerías y funciones de utilidad.
+    - `db.ts`: Configuración de la conexión a la base de datos.
+    - `env.ts`: Configuración de las variables de entorno.
+- `seeders/`: Contiene los seeders para poblar la base de datos con datos de prueba.
+- `tests/`: Contiene los tests de la aplicación.
+- `migrations/`: Contiene las migraciones de la base de datos.
 
 ## Cómo crear un nuevo CRUD
 
@@ -61,11 +61,13 @@ export const vehicleSchema = z.object({
     year: z.number()
 });
 
-export const vehicleFilterSchema = vehicleSchema.pick({
-    brand: true,
-    model: true,
-    year: true
-}).partial();
+export const vehicleFilterSchema = vehicleSchema
+    .pick({
+        brand: true,
+        model: true,
+        year: true
+    })
+    .partial();
 
 export const vehicleCreateSchema = vehicleSchema.pick({
     brand: true,
@@ -196,7 +198,7 @@ app.use(customErrorHandler);
 
 Añade los exports de los nuevos archivos en los `index.ts` correspondientes.
 
--   `src/schemas/index.ts`: `export * from "./vehicle.schema";`
+- `src/schemas/index.ts`: `export * from "./vehicle.schema";`
 
 ### 9. Generar la Migración
 

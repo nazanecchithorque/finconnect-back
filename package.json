@@ -15,7 +15,7 @@
         "db:generate": "drizzle-kit generate --config drizzle.config.local.ts",
         "db:studio": "npx drizzle-kit studio --config drizzle.config.local.ts & firefox https://local.drizzle.studio",
         "db:migrate": "drizzle-kit migrate --config drizzle.config.local.ts",
-        "db:push": "drizzle-kit push --config drizle.config.local.ts",
+        "db:push": "drizzle-kit push --config drizzle.config.local.ts",
         "db:prod:generate": "drizzle-kit generate --config drizzle.config.prod.ts",
         "db:prod:migrate": "drizzle-kit migrate --config drizzle.config.prod.ts",
         "db:prod:drop": "drizzle-kit drop --config drizzle.config.prod.ts",
