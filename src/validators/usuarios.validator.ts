@@ -12,7 +12,9 @@ import { z } from "zod";
 export const usuariosSchema = z.object({
     nombre: z.string().min(1),
     apellido: z.string().min(1),
-    email: z.string().email()
+    email: z.string().email(),
+    dni: z.string(),
+    genero: z.enum(["masculino", "femenino", "otro"])
 });
 
 // para el POST /usuarios

@@ -3,9 +3,16 @@ import {
     serial,
     varchar,
     integer,
-    timestamp
+    timestamp,
+    pgEnum
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./util";
+
+export const generoEnum = pgEnum("genero_enum", [
+    "masculino",
+    "femenino",
+    "otro"
+]);
 
 export const usuarios = pgTable("usuarios", {
     id: serial("id").primaryKey(),
@@ -14,6 +21,10 @@ export const usuarios = pgTable("usuarios", {
     apellido: varchar("apellido", { length: 100 }).notNull(),
 
     email: varchar("email", { length: 255 }).notNull().unique(),
+
+    dni: varchar("dni", { length: 20 }).notNull().unique(),
+
+    genero: generoEnum("genero").notNull(),
 
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
 

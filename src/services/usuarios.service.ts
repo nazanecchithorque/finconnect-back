@@ -1,4 +1,4 @@
-import { usuarios } from "../schemas/usuarios.schema";
+import { generoEnum, usuarios } from "../schemas/usuarios.schema";
 import { usuariosFilterMap } from "../filters/usuarios.filter";
 import { usuariosCreateSchema } from "../validators/usuarios.validator";
 import { db } from "../db";
@@ -19,6 +19,8 @@ export const usuariosService = {
                 nombre: usuarios.nombre,
                 apellido: usuarios.apellido,
                 email: usuarios.email,
+                dni: usuarios.dni,
+                genero: usuarios.genero,
                 activo: usuarios.activo
             })
             .from(usuarios)
@@ -32,6 +34,8 @@ export const usuariosService = {
                 nombre: usuarios.nombre,
                 apellido: usuarios.apellido,
                 email: usuarios.email,
+                dni: usuarios.dni,
+                genero: usuarios.genero,
                 activo: usuarios.activo,
                 fechaRegistro: usuarios.fechaRegistro
             })
@@ -46,6 +50,8 @@ export const usuariosService = {
             nombre: data.nombre,
             apellido: data.apellido,
             email: data.email,
+            dni: data.dni,
+            genero: data.genero,
             passwordHash
         });
     },
