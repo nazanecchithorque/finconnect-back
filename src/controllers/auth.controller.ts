@@ -15,5 +15,18 @@ export const authController = {
         } catch (error) {
             next(error);
         }
+    },
+
+    async register(req: Request, res: Response, next: NextFunction) {
+        try {
+            const result = await authService.register(req.body);
+
+            return res.status(201).json({
+                message: "Usuario registrado correctamente",
+                result
+            });
+        } catch (error) {
+            next(error);
+        }
     }
 };

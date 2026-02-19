@@ -17,10 +17,12 @@ export const usuariosSchema = z.object({
     genero: z.enum(["masculino", "femenino", "otro"])
 });
 
+/* el CREATE esta solo en AUTH
 // para el POST /usuarios
 export const usuariosCreateSchema = usuariosSchema.extend({
     password: z.string().min(8)
 });
+*/
 
 // para el GET /usuarios
 export const usuariosFilterSchema = usuariosSchema

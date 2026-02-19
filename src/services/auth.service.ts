@@ -33,5 +33,58 @@ export const authService = {
         return {
             token
         };
+    },
+
+    async register(body: any) {
+        const { registerSchema } = await import("../validators/auth.validator");
+
+        // Validar datos
+        const data = registerSchema.parse(body);
+
+        // Verificar si ya existe usuario
+        const existingUser = await db.query.usuarios.findFirst({
+            where: eq(usuarios.email, data.email)
+        });
+
+        if (existingUser) {
+            throw new HttpError(400, "El email ya está registrado");
+        }
+
+        // Verificar si el DNI ya existe
+        const existingDni = await db.query.usuarios.findFirst({
+            where: eq(usuarios.dni, data.dni)
+        });
+
+        if (existingDni) {
+            throw new HttpError(400, "El DNI ya está registrado");
+        }
+
+        // Hashear password
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+
+        // Crear usuario
+        const [newUser] = await db
+            .insert(usuarios)
+            .values({
+                nombre: data.nombre,
+                apellido: data.apellido,
+                email: data.email,
+                dni: data.dni,
+                genero: data.genero,
+                passwordHash: hashedPassword
+            })
+            .returning();
+
+        // Generar token
+        const token = jwt.sign(
+            {
+                userId: newUser.id,
+                email: newUser.email
+            },
+            process.env.JWT_SECRET as string,
+            { expiresIn: "1h" }
+        );
+
+        return { token };
     }
 };

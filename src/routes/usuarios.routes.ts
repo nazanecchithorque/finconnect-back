@@ -7,11 +7,15 @@ const router = Router();
 // Obtener todos los usuarios
 router.get("/", authMiddleware, usuariosController.getAll);
 
+// Obtener mis datos
+router.get("/me", authMiddleware, usuariosController.getMe);
+
+
 // Obtener un usuario por id
 router.get("/:id", authMiddleware, usuariosController.getById);
 
-// Crear un usuario
-router.post("/", authMiddleware, usuariosController.create);
+// Crear un usuario -> Esta en AUTH
+//router.post("/", authMiddleware, usuariosController.create);
 
 // Actualizar un usuario
 router.put("/:id", authMiddleware, usuariosController.update);

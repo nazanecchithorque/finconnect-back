@@ -1,13 +1,11 @@
 import { generoEnum, usuarios } from "../schemas/usuarios.schema";
 import { usuariosFilterMap } from "../filters/usuarios.filter";
-import { usuariosCreateSchema } from "../validators/usuarios.validator";
 import { db } from "../db";
 import { z } from "zod";
 import { ServiceBuilder } from "bradb";
 import { eq, InferInsertModel } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
-type CrearUsuarioDTO = z.infer<typeof usuariosCreateSchema>;
 const builder = new ServiceBuilder(db, usuarios, usuariosFilterMap);
 const baseCreate = builder.create();
 
@@ -42,7 +40,7 @@ export const usuariosService = {
             .from(usuarios)
             .$dynamic()
     ),
-
+    /* el CREATE ahora esta solo en AUTH
     create: async (data: CrearUsuarioDTO) => {
         const passwordHash = await bcrypt.hash(data.password, 10);
 
@@ -55,7 +53,7 @@ export const usuariosService = {
             passwordHash
         });
     },
-
+    */
     update: builder.update(),
     count: builder.count(),
     delete: builder.softDelete()
