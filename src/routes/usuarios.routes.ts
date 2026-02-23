@@ -10,7 +10,6 @@ router.get("/", authMiddleware, usuariosController.getAll);
 // Obtener mis datos
 router.get("/me", authMiddleware, usuariosController.getMe);
 
-
 // Obtener un usuario por id
 router.get("/:id", authMiddleware, usuariosController.getById);
 

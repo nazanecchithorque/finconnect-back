@@ -25,7 +25,6 @@ async function getMe(req: AuthRequest, res: Response) {
     return res.json(usuario);
 }
 
-
 export const usuariosController = {
     getMe,
     getById: findOneBuilder(usuariosService),

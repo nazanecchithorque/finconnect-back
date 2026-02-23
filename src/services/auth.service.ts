@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { usuarios } from "../schemas/usuarios.schema";
+import { cuentas } from "../schemas/cuentas.schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { HttpError } from "../errors/http.error";
@@ -74,6 +75,19 @@ export const authService = {
                 passwordHash: hashedPassword
             })
             .returning();
+
+        const monedas = ["ARS", "USD", "EUR", "BRL"] as const;
+
+        for (const moneda of monedas) {
+            await db.insert(cuentas).values({
+                usuarioId: newUser.id,
+                cvu: Math.random().toString().slice(2, 24),
+                alias: `usuario.${newUser.id}.${moneda.toLowerCase()}`,
+                moneda,
+                saldo: "0",
+                activa: true
+            });
+        }
 
         // Generar token
         const token = jwt.sign(
