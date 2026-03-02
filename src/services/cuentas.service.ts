@@ -15,7 +15,7 @@ export const cuentasService = {
                 alias: cuentas.alias,
                 moneda: cuentas.moneda,
                 saldo: cuentas.saldo,
-                activa: cuentas.activa,
+                activo: cuentas.activo,
                 createdAt: cuentas.createdAt
             })
             .from(cuentas)
@@ -30,7 +30,7 @@ export const cuentasService = {
                 alias: cuentas.alias,
                 moneda: cuentas.moneda,
                 saldo: cuentas.saldo,
-                activa: cuentas.activa,
+                activo: cuentas.activo,
                 createdAt: cuentas.createdAt
             })
             .from(cuentas)

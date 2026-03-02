@@ -3,7 +3,7 @@ import { z } from "zod";
 /*
     Campos que pone el usuario: nombre, apellido, email, password. (VAN EN EL VALIDATOR)
 
-    Campos que pone el back: id, fechaRegistro, deletedAt (NO VAN EN EL VALIDATOR)
+    Campos que pone el back: id, createdAt, deletedAt (NO VAN EN EL VALIDATOR)
 
     Campos de estado interno: activo (PUEDE IR)
 */

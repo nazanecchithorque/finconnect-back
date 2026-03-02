@@ -35,7 +35,7 @@ export const usuariosService = {
                 dni: usuarios.dni,
                 genero: usuarios.genero,
                 activo: usuarios.activo,
-                fechaRegistro: usuarios.fechaRegistro
+                createdAt: usuarios.createdAt
             })
             .from(usuarios)
             .$dynamic()

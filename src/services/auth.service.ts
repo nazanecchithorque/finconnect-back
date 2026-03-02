@@ -85,7 +85,7 @@ export const authService = {
                 alias: `usuario.${newUser.id}.${moneda.toLowerCase()}`,
                 moneda,
                 saldo: "0",
-                activa: true
+                activo: true
             });
         }
 

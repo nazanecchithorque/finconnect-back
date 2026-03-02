@@ -8,7 +8,7 @@ import { usuariosFilterSchema } from "../validators/usuarios.validator";
 
     Los filtros hacen una búsqueda por coincidencia parcial (ilike) en nombre, apellido y email.
     El filtro 'activo' buscará exactamente igual al número proporcionado.
-    No se filtra por password ni por datos internos como fechaRegistro o deletedAt.
+    No se filtra por password ni por datos internos como createdAt o deletedAt.
 */
 
 export const usuariosFilterMap: FilterMap<typeof usuariosFilterSchema> = {

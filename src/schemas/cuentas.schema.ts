@@ -33,7 +33,7 @@ export const cuentas = pgTable(
             .notNull()
             .default("0"),
 
-        activa: boolean("activa").notNull().default(true),
+        activo: boolean("activo").notNull().default(true),
         deletedAt: timestamp("deleted_at"),
         createdAt: timestamp("created_at").notNull().defaultNow()
     },

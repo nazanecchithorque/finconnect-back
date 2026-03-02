@@ -6,7 +6,7 @@ export const cuentasSchema = z.object({
     alias: z.string(),
     moneda: z.enum(["ARS", "USD", "EUR", "BRL"]),
     saldo: z.string(),
-    activa: z.boolean()
+    activo: z.boolean()
 });
 
 // para GET /cuentas
@@ -14,7 +14,7 @@ export const cuentasFilterSchema = cuentasSchema
     .pick({
         usuarioId: true,
         moneda: true,
-        activa: true
+        activo: true
     })
     .partial();
 

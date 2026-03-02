@@ -18,6 +18,7 @@ export const usuarios = pgTable("usuarios", {
     id: serial("id").primaryKey(),
 
     nombre: varchar("nombre", { length: 100 }).notNull(),
+
     apellido: varchar("apellido", { length: 100 }).notNull(),
 
     email: varchar("email", { length: 255 }).notNull().unique(),
@@ -30,7 +31,7 @@ export const usuarios = pgTable("usuarios", {
 
     activo: integer("activo").notNull().default(1),
 
-    fechaRegistro: timestamp("fecha_registro").notNull().defaultNow(),
+    createdAt: timestamps.createdAt,
 
     deletedAt: timestamps.deletedAt
 });
