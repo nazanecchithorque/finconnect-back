@@ -8,12 +8,24 @@ import {
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./util";
 
-export const generoEnum = pgEnum("genero_enum", [
-    "masculino",
-    "femenino",
-    "otro"
-]);
+    
+export const genero = {
+    masculino: "masculino",
+    femenino: "femenino",
+    otro: "otro"
+} as const;
 
+export type GeneroType =
+    (typeof genero)[keyof typeof genero];
+
+export const generoKeys = Object.values(genero) as [
+    GeneroType
+];
+
+export const generoEnum = pgEnum(
+    "genero",
+    generoKeys
+);
 export const usuarios = pgTable("usuarios", {
     id: serial("id").primaryKey(),
 

@@ -4,18 +4,40 @@ import {
     integer,
     numeric,
     varchar,
-    timestamp,
     pgEnum
 } from "drizzle-orm/pg-core";
-
-export const tipoOperacionEnum = pgEnum("tipo_operacion", ["TRANSFERENCIA"]);
-
-export const sentidoMovimientoEnum = pgEnum("sentido_movimiento", [
-    "INGRESO",
-    "EGRESO"
-]);
-
 import { cuentas } from "./cuentas.schema";
+import { timestamps } from "./util";
+
+export const sentidoMovimiento = {
+    ingreso: "ingreso",
+    egreso: "egreso"
+} as const;
+
+export type SentidoMovimientoType =
+    (typeof sentidoMovimiento)[keyof typeof sentidoMovimiento];
+
+export const sentidoMovimientoKeys = Object.values(sentidoMovimiento) as [
+    SentidoMovimientoType
+];
+
+export const sentidoMovimientoEnum = pgEnum("sentidoMovimiento", sentidoMovimientoKeys);
+
+export const tipoOperacion = {
+    transferencia: "transferencia",
+    cripto: "cripto",
+    pagoservicio: "pagoservicio",
+    otros: "otros"
+} as const;
+
+export type TipoOperacionType =
+    (typeof tipoOperacion)[keyof typeof tipoOperacion];
+
+export const tipoOperacionKeys = Object.values(tipoOperacion) as [
+    TipoOperacionType
+];
+
+export const tipoOperacionEnum = pgEnum("tipoOperacion", tipoOperacionKeys);
 
 /*
 Los movimientos son el impacto contable.
@@ -31,6 +53,8 @@ export const movimientos = pgTable("movimientos", {
 
     tipoOperacion: tipoOperacionEnum("tipo_operacion").notNull(),
 
+    referenciaId: integer("referencia_id"),
+
     sentido: sentidoMovimientoEnum("sentido_movimiento").notNull(),
 
     monto: numeric("monto", { precision: 18, scale: 2 }).notNull(),
@@ -40,9 +64,6 @@ export const movimientos = pgTable("movimientos", {
         scale: 2
     }).notNull(),
 
-    referenciaId: integer("referencia_id"), // aca va el id de la transferencia/cripto/pagoservicio
-
     descripcion: varchar("descripcion", { length: 255 }),
-
-    createdAt: timestamp("created_at").defaultNow().notNull()
+    ...timestamps
 });
