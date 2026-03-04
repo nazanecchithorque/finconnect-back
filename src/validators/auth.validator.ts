@@ -1,3 +1,4 @@
+import { UserRolesType } from "@/schemas";
 import { z } from "zod";
 
 export const loginSchema = z.object({
@@ -18,3 +19,9 @@ export const registerSchema = z.object({
         .string()
         .min(8, "La contraseña debe tener al menos 8 caracteres")
 });
+
+export type TokenData = {
+    id: string;
+    email: string;
+    role: UserRolesType;
+};

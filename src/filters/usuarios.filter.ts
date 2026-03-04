@@ -1,19 +1,17 @@
 import { FilterMap } from "bradb";
-import { ilike, eq } from "drizzle-orm";
-import { usuarios } from "../schemas/usuarios.schema";
-import { usuariosFilterSchema } from "../validators/usuarios.validator";
+import { eq } from "drizzle-orm";
+import { usuariosTable } from "../schemas/usuarios.schema"
+import { usuariosValidator } from "../validators/usuarios.validator";
 
-/*
-    Campos que filtra el usuario: nombre, apellido, email, activo.
-
-    Los filtros hacen una búsqueda por coincidencia parcial (ilike) en nombre, apellido y email.
-    El filtro 'activo' buscará exactamente igual al número proporcionado.
-    No se filtra por password ni por datos internos como createdAt o deletedAt.
-*/
-
-export const usuariosFilterMap: FilterMap<typeof usuariosFilterSchema> = {
-    email: (value) => ilike(usuarios.email, `%${value}%`),
-    nombre: (value) => ilike(usuarios.nombre, `%${value}%`),
-    apellido: (value) => ilike(usuarios.nombre, `%${value}%`),
-    activo: (value) => eq(usuarios.activo, value)
-};
+export const usuariosFilterMap: FilterMap<typeof usuariosValidator.filter> = {
+    id: (val) => eq(usuariosTable.id, val),
+	nombre: (val) => eq(usuariosTable.nombre, val),
+	apellido: (val) => eq(usuariosTable.apellido, val),
+	email: (val) => eq(usuariosTable.email, val),
+	dni: (val) => eq(usuariosTable.dni, val),
+	genero: (val) => eq(usuariosTable.genero, val),
+	passwordHash: (val) => eq(usuariosTable.passwordHash, val),
+	activo: (val) => eq(usuariosTable.activo, val),
+	createdAt: (val) => eq(usuariosTable.createdAt, val),
+	deletedAt: (val) => eq(usuariosTable.deletedAt, val)
+}

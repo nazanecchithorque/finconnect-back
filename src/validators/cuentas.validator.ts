@@ -1,22 +1,26 @@
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createFilterSchema, createPkSchema } from "bradb";
 import { z } from "zod";
+import { cuentasTable } from "../schemas/cuentas.schema";
 
-export const cuentasSchema = z.object({
-    usuarioId: z.number().int(),
-    cvu: z.string(),
-    alias: z.string(),
-    moneda: z.enum(["ARS", "USD", "EUR", "BRL"]),
-    saldo: z.string(),
-    activo: z.boolean()
+const select = createSelectSchema(cuentasTable);
+const insert = createInsertSchema(cuentasTable);
+const update = insert.partial();
+const filter = createFilterSchema(cuentasTable).partial();
+const pk = createPkSchema(cuentasTable).pick({
+    id: true
 });
 
-// para GET /cuentas
-export const cuentasFilterSchema = cuentasSchema
-    .pick({
-        usuarioId: true,
-        moneda: true,
-        activo: true
-    })
-    .partial();
+type Cuentas = z.infer<typeof select>;
+type CuentasInsert = z.infer<typeof insert>;
+type CuentasUpdate = z.infer<typeof update>;
+type CuentasFilter = z.infer<typeof filter>;
+type CuentasPk = z.infer<typeof pk>;
 
-// para UPDATE
-export const cuentasUpdateSchema = cuentasSchema.partial();
+export const cuentasValidator = {
+    select,
+    insert,
+    update,
+    filter,
+    pk
+};

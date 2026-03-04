@@ -1,17 +1,30 @@
 import express from "express";
-import usuariosRoutes from "./src/routes/usuarios.routes";
-import authRoutes from "./src/routes/auth.routes";
-import cuentasRoutes from "./src/routes/cuentas.routes";
-import { customErrorHandler } from "./src/middlewares/errorHandler";
+import { usuariosRouter } from "@/routes/usuarios.router";
+import authRoutes from "@/routes/auth.router";
+import { cuentasRouter } from "@/routes/cuentas.router";
 import { errorHandler } from "bradb";
+import { movimientosRouter } from "@/routes/movimientos.router";
+import { transferenciasRouter } from "@/routes/transferencias.router";
+import { requestLogger, responseLogger } from "@/middlewares/logging";
+import { customErrorHandler } from "@/middlewares/errorHandler";
 
 export const app = express();
 
+app.use(requestLogger);
+app.use(responseLogger);
+
 app.use(express.json());
 
-app.use("/usuarios", usuariosRoutes);
+app.use("/usuarios", usuariosRouter);
 app.use("/auth", authRoutes);
-app.use("/cuentas", cuentasRoutes);
+app.use("/cuentas", cuentasRouter);
+app.use("/movimientos", movimientosRouter);
+app.use("/transferencias", transferenciasRouter);
+
+// Healthcheck
+app.get("/eso", (_req, res) => {
+  res.send("brad");
+});
 
 // Importante ponerlo despues de todas las rutas, de otra forma no va a agarrar los errores
 app.use(errorHandler);

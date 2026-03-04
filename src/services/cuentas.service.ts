@@ -1,42 +1,14 @@
-import { cuentas } from "../schemas/cuentas.schema";
-import { cuentasFilterMap } from "../filters/cuentas.filter";
-import { db } from "../db";
 import { ServiceBuilder } from "bradb";
+import { cuentasTable } from "../schemas/cuentas.schema"
+import { cuentasFilterMap } from "../filters/cuentas.filter"
+import { db } from "../db";
 
-const builder = new ServiceBuilder(db, cuentas, cuentasFilterMap);
+const builder = new ServiceBuilder(db, cuentasTable, cuentasFilterMap);
 
 export const cuentasService = {
-    findAll: builder.findAll(
-        db
-            .select({
-                id: cuentas.id,
-                usuarioId: cuentas.usuarioId,
-                cvu: cuentas.cvu,
-                alias: cuentas.alias,
-                moneda: cuentas.moneda,
-                saldo: cuentas.saldo,
-                activo: cuentas.activo,
-                createdAt: cuentas.createdAt
-            })
-            .from(cuentas)
-            .$dynamic()
-    ),
-    findOne: builder.findOne(
-        db
-            .select({
-                id: cuentas.id,
-                usuarioId: cuentas.usuarioId,
-                cvu: cuentas.cvu,
-                alias: cuentas.alias,
-                moneda: cuentas.moneda,
-                saldo: cuentas.saldo,
-                activo: cuentas.activo,
-                createdAt: cuentas.createdAt
-            })
-            .from(cuentas)
-            .$dynamic()
-    ),
-    count: builder.count(),
-    delete: builder.softDelete(),
-    update: builder.update()
+    create: builder.create(),
+    update: builder.update(),
+    delete: builder.delete(),
+    findAll: builder.findAll(),
+    findOne: builder.findOne()
 };
