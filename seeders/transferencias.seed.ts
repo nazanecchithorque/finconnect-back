@@ -1,15 +1,17 @@
+import { resetIdentity } from ".";
 import { db } from "../src/db";
-import { cuentas } from "../src/schemas/cuentas.schema";
+import { cuentasTable } from "../src/schemas/cuentas.schema";
 import {
-    movimientos,
+    movimientosTable,
     sentidoMovimiento,
     tipoOperacion
 } from "../src/schemas/movimientos.schema";
-import { transferencias } from "../src/schemas/transferencias.schema";
+import { transferenciasTable } from "../src/schemas/transferencias.schema";
 import { eq } from "drizzle-orm";
 
 export async function seedTransferencias() {
-    const cuentasDb = await db.select().from(cuentas);
+    await resetIdentity(transferenciasTable);
+    const cuentasDb = await db.select().from(cuentasTable);
 
     // Necesitamos al menos 2 cuentas para poder transferir
     const cuentasActivas = cuentasDb.filter(
@@ -57,13 +59,13 @@ export async function seedTransferencias() {
             await db.transaction(async (tx) => {
                 const [origenFresh] = await tx
                     .select()
-                    .from(cuentas)
-                    .where(eq(cuentas.id, origen.id));
+                    .from(cuentasTable)
+                    .where(eq(cuentasTable.id, origen.id));
 
                 const [destinoFresh] = await tx
                     .select()
-                    .from(cuentas)
-                    .where(eq(cuentas.id, destino.id));
+                    .from(cuentasTable)
+                    .where(eq(cuentasTable.id, destino.id));
 
                 if (!origenFresh || !destinoFresh) {
                     return;
@@ -97,7 +99,7 @@ export async function seedTransferencias() {
                 }
 
                 const [transferencia] = await tx
-                    .insert(transferencias)
+                    .insert(transferenciasTable)
                     .values({
                         cuentaOrigenId: origenFresh.id,
                         cuentaDestinoId: destinoFresh.id,
@@ -109,7 +111,7 @@ export async function seedTransferencias() {
                 const nuevoSaldoOrigen = saldoOrigenNum - monto;
                 const nuevoSaldoDestino = Number(destinoFresh.saldo) + monto;
 
-                await tx.insert(movimientos).values({
+                await tx.insert(movimientosTable).values({
                     cuentaId: origenFresh.id,
                     tipoOperacion: tipoOperacion.transferencia,
                     referenciaId: transferencia.id,
@@ -118,7 +120,7 @@ export async function seedTransferencias() {
                     saldoPosterior: nuevoSaldoOrigen.toString()
                 });
 
-                await tx.insert(movimientos).values({
+                await tx.insert(movimientosTable).values({
                     cuentaId: destinoFresh.id,
                     tipoOperacion: tipoOperacion.transferencia,
                     referenciaId: transferencia.id,
@@ -128,14 +130,14 @@ export async function seedTransferencias() {
                 });
 
                 await tx
-                    .update(cuentas)
+                    .update(cuentasTable)
                     .set({ saldo: nuevoSaldoOrigen.toString() })
-                    .where(eq(cuentas.id, origenFresh.id));
+                    .where(eq(cuentasTable.id, origenFresh.id));
 
                 await tx
-                    .update(cuentas)
+                    .update(cuentasTable)
                     .set({ saldo: nuevoSaldoDestino.toString() })
-                    .where(eq(cuentas.id, destinoFresh.id));
+                    .where(eq(cuentasTable.id, destinoFresh.id));
             });
         }
     }

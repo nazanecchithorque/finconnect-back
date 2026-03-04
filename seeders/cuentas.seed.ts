@@ -1,11 +1,11 @@
 import { db } from "../src/db";
-import { cuentas } from "../src/schemas/cuentas.schema";
-import { usuarios } from "../src/schemas/usuarios.schema";
+import { resetIdentity } from ".";
+import { cuentasTable } from "../src/schemas/cuentas.schema";
+import { usuariosTable } from "../src/schemas/usuarios.schema";
 import { InferInsertModel } from "drizzle-orm";
+import { monedaTypesKeys } from "../src/schemas/cuentas.schema";
 
-type CuentaInsert = InferInsertModel<typeof cuentas>;
-
-const MONEDAS = ["ARS", "USD", "EUR", "BRL"] as const;
+type CuentaInsert = InferInsertModel<typeof cuentasTable>;
 
 function generarCvu(): string {
     let cvu = "";
@@ -16,12 +16,13 @@ function generarCvu(): string {
 }
 
 export async function seedCuentas() {
-    const usuariosDb = await db.select().from(usuarios);
+    await resetIdentity(cuentasTable);
+    const usuariosDb = await db.select().from(usuariosTable);
 
     const cuentasSeed: CuentaInsert[] = [];
 
     for (const usuario of usuariosDb) {
-        for (const moneda of MONEDAS) {
+        for (const moneda of monedaTypesKeys) {
             cuentasSeed.push({
                 usuarioId: usuario.id,
                 cvu: generarCvu(),
@@ -34,7 +35,7 @@ export async function seedCuentas() {
     }
 
     if (cuentasSeed.length > 0) {
-        await db.insert(cuentas).values(cuentasSeed);
+        await db.insert(cuentasTable).values(cuentasSeed);
     }
 }
 
