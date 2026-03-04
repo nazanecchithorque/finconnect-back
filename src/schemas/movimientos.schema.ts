@@ -6,7 +6,7 @@ import {
     varchar,
     pgEnum
 } from "drizzle-orm/pg-core";
-import { cuentas } from "./cuentas.schema";
+import { cuentasTable } from "./cuentas.schema";
 import { timestamps } from "./util";
 
 export const sentidoMovimiento = {
@@ -44,12 +44,12 @@ Los movimientos son el impacto contable.
 La transferencia es la operación de negocio.
 */
 
-export const movimientos = pgTable("movimientos", {
+export const movimientosTable = pgTable("movimientos", {
     id: serial("id").primaryKey(),
 
     cuentaId: integer("cuenta_id")
         .notNull()
-        .references(() => cuentas.id),
+        .references(() => cuentasTable.id),
 
     tipoOperacion: tipoOperacionEnum("tipo_operacion").notNull(),
 

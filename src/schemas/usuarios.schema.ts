@@ -8,6 +8,23 @@ import {
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./util";
 
+
+export const userRoles = {
+    admin: "admin",
+    finalUser: "final_user",
+} as const;
+
+export type UserRolesType =
+    (typeof userRoles)[keyof typeof userRoles];
+
+export const userRolesKeys = Object.values(userRoles) as [
+    UserRolesType
+];
+
+export const userRolesEnum = pgEnum(
+    "user_roles",
+    userRolesKeys
+);
     
 export const genero = {
     masculino: "masculino",
@@ -26,8 +43,11 @@ export const generoEnum = pgEnum(
     "genero",
     generoKeys
 );
-export const usuarios = pgTable("usuarios", {
+
+export const usuariosTable = pgTable("usuarios", {
     id: serial("id").primaryKey(),
+
+    role: userRolesEnum("role").notNull(),
 
     nombre: varchar("nombre", { length: 100 }).notNull(),
 

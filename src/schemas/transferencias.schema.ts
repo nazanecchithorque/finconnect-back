@@ -6,7 +6,7 @@ import {
     timestamp,
     pgEnum
 } from "drizzle-orm/pg-core";
-import { cuentas } from "./cuentas.schema";
+import { cuentasTable } from "./cuentas.schema";
 import { timestamps } from "./util";
 
 export const estadoTransferencia = {
@@ -27,16 +27,16 @@ export const estadoTransferenciaEnum = pgEnum(
     estadoTransferenciaKeys
 );
 
-export const transferencias = pgTable("transferencias", {
+export const transferenciasTable = pgTable("transferencias", {
     id: serial("id").primaryKey(),
 
     cuentaOrigenId: integer("cuenta_origen_id")
         .notNull()
-        .references(() => cuentas.id),
+        .references(() => cuentasTable.id),
 
     cuentaDestinoId: integer("cuenta_destino_id")
         .notNull()
-        .references(() => cuentas.id),
+        .references(() => cuentasTable.id),
 
     monto: numeric("monto", { precision: 18, scale: 2 }).notNull(),
 

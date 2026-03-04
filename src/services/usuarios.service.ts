@@ -1,60 +1,14 @@
-import { generoEnum, usuarios } from "../schemas/usuarios.schema";
-import { usuariosFilterMap } from "../filters/usuarios.filter";
-import { db } from "../db";
-import { z } from "zod";
 import { ServiceBuilder } from "bradb";
-import { eq, InferInsertModel } from "drizzle-orm";
-import bcrypt from "bcrypt";
+import { usuariosTable } from "../schemas/usuarios.schema"
+import { usuariosFilterMap } from "../filters/usuarios.filter"
+import { db } from "../db";
 
-const builder = new ServiceBuilder(db, usuarios, usuariosFilterMap);
-const baseCreate = builder.create();
+const builder = new ServiceBuilder(db, usuariosTable, usuariosFilterMap);
 
 export const usuariosService = {
-    findAll: builder.findAll(
-        db
-            .select({
-                id: usuarios.id,
-                nombre: usuarios.nombre,
-                apellido: usuarios.apellido,
-                email: usuarios.email,
-                dni: usuarios.dni,
-                genero: usuarios.genero,
-                activo: usuarios.activo
-            })
-            .from(usuarios)
-            .$dynamic()
-    ),
-
-    findOne: builder.findOne(
-        db
-            .select({
-                id: usuarios.id,
-                nombre: usuarios.nombre,
-                apellido: usuarios.apellido,
-                email: usuarios.email,
-                dni: usuarios.dni,
-                genero: usuarios.genero,
-                activo: usuarios.activo,
-                createdAt: usuarios.createdAt
-            })
-            .from(usuarios)
-            .$dynamic()
-    ),
-    /* el CREATE ahora esta solo en AUTH
-    create: async (data: CrearUsuarioDTO) => {
-        const passwordHash = await bcrypt.hash(data.password, 10);
-
-        return baseCreate({
-            nombre: data.nombre,
-            apellido: data.apellido,
-            email: data.email,
-            dni: data.dni,
-            genero: data.genero,
-            passwordHash
-        });
-    },
-    */
+    create: builder.create(),
     update: builder.update(),
-    count: builder.count(),
-    delete: builder.softDelete()
+    delete: builder.delete(),
+    findAll: builder.findAll(),
+    findOne: builder.findOne()
 };

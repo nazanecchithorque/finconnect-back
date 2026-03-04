@@ -1,13 +1,15 @@
 import { FilterMap } from "bradb";
 import { eq } from "drizzle-orm";
-import { transferencias } from "../schemas/transferencias.schema";
-import { transferenciasFilterSchema } from "../validators/transferencias.validator";
+import { transferenciasTable } from "../schemas/transferencias.schema"
+import { transferenciasValidator } from "../validators/transferencias.validator";
 
-export const transferenciasFilterMap: FilterMap<
-    typeof transferenciasFilterSchema
-> = {
-    cuentaOrigenId: (value) => eq(transferencias.cuentaOrigenId, value),
-    cuentaDestinoId: (value) => eq(transferencias.cuentaDestinoId, value),
-    estado: (value) => eq(transferencias.estado, value)
-};
-
+export const transferenciasFilterMap: FilterMap<typeof transferenciasValidator.filter> = {
+    id: (val) => eq(transferenciasTable.id, val),
+	cuentaOrigenId: (val) => eq(transferenciasTable.cuentaOrigenId, val),
+	cuentaDestinoId: (val) => eq(transferenciasTable.cuentaDestinoId, val),
+	monto: (val) => eq(transferenciasTable.monto, val),
+	estado: (val) => eq(transferenciasTable.estado, val),
+	createdAt: (val) => eq(transferenciasTable.createdAt, val),
+	updatedAt: (val) => eq(transferenciasTable.updatedAt, val),
+	deletedAt: (val) => eq(transferenciasTable.deletedAt, val)
+}

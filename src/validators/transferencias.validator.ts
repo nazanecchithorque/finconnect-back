@@ -1,27 +1,26 @@
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createFilterSchema, createPkSchema } from "bradb";
 import { z } from "zod";
-import { strToReal } from "./util";
-import { estadoTransferenciaKeys } from "@/schemas/transferencias.schema";
+import { transferenciasTable } from "../schemas/transferencias.schema";
 
-export const transferenciasSchema = z.object({
-    cuentaOrigenId: z.number().int(),
-    cuentaDestinoId: z.number().int(),
-
-    monto: strToReal().refine((val) => val > 0, {
-        message: "El monto debe ser mayor a 0"
-    }),
-
-    estado: z.enum(estadoTransferenciaKeys)
+const select = createSelectSchema(transferenciasTable);
+const insert = createInsertSchema(transferenciasTable);
+const update = insert.partial();
+const filter = createFilterSchema(transferenciasTable).partial();
+const pk = createPkSchema(transferenciasTable).pick({
+    id: true
 });
 
-// para GET /transferencias (filtros)
-export const transferenciasFilterSchema = transferenciasSchema
-    .pick({
-        cuentaOrigenId: true,
-        cuentaDestinoId: true,
-        estado: true
-    })
-    .partial();
+type Transferencias = z.infer<typeof select>;
+type TransferenciasInsert = z.infer<typeof insert>;
+type TransferenciasUpdate = z.infer<typeof update>;
+type TransferenciasFilter = z.infer<typeof filter>;
+type TransferenciasPk = z.infer<typeof pk>;
 
-// para UPDATE /transferencias
-export const transferenciasUpdateSchema = transferenciasSchema.partial();
-
+export const transferenciasValidator = {
+    select,
+    insert,
+    update,
+    filter,
+    pk
+};

@@ -1,37 +1,14 @@
-import { transferencias } from "../schemas/transferencias.schema";
-import { transferenciasFilterMap } from "../filters/transferencias.filter";
-import { db } from "../db";
 import { ServiceBuilder } from "bradb";
+import { transferenciasTable } from "../schemas/transferencias.schema"
+import { transferenciasFilterMap } from "../filters/transferencias.filter"
+import { db } from "../db";
 
-const builder = new ServiceBuilder(db, transferencias, transferenciasFilterMap);
+const builder = new ServiceBuilder(db, transferenciasTable, transferenciasFilterMap);
 
 export const transferenciasService = {
-    findAll: builder.findAll(
-        db
-            .select({
-                id: transferencias.id,
-                cuentaOrigenId: transferencias.cuentaOrigenId,
-                cuentaDestinoId: transferencias.cuentaDestinoId,
-                monto: transferencias.monto,
-                estado: transferencias.estado,
-                createdAt: transferencias.createdAt
-            })
-            .from(transferencias)
-            .$dynamic()
-    ),
-    findOne: builder.findOne(
-        db
-            .select({
-                id: transferencias.id,
-                cuentaOrigenId: transferencias.cuentaOrigenId,
-                cuentaDestinoId: transferencias.cuentaDestinoId,
-                monto: transferencias.monto,
-                estado: transferencias.estado,
-                createdAt: transferencias.createdAt
-            })
-            .from(transferencias)
-            .$dynamic()
-    ),
-    count: builder.count()
+    create: builder.create(),
+    update: builder.update(),
+    delete: builder.delete(),
+    findAll: builder.findAll(),
+    findOne: builder.findOne()
 };
-

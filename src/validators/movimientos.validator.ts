@@ -1,32 +1,26 @@
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createFilterSchema, createPkSchema } from "bradb";
 import { z } from "zod";
-import { strToReal } from "./util";
-import { sentidoMovimientoKeys, tipoOperacionKeys } from "@/schemas/movimientos.schema";
+import { movimientosTable } from "../schemas/movimientos.schema";
 
-export const movimientosSchema = z.object({
-    cuentaId: z.number().int(),
-
-    tipoOperacion: z.enum(tipoOperacionKeys),
-
-    referenciaId: z.number().int().optional(),
-
-    sentido: z.enum(sentidoMovimientoKeys),
-
-    monto: strToReal().refine((val) => val > 0, {
-        message: "El monto debe ser mayor a 0"
-    }),
-
-    descripcion: z.string().max(255).optional()
+const select = createSelectSchema(movimientosTable);
+const insert = createInsertSchema(movimientosTable);
+const update = insert.partial();
+const filter = createFilterSchema(movimientosTable).partial();
+const pk = createPkSchema(movimientosTable).pick({
+    id: true
 });
 
-// para GET /movimientos (filtros)
-export const movimientosFilterSchema = movimientosSchema
-    .pick({
-        cuentaId: true,
-        tipoOperacion: true,
-        sentido: true
-    })
-    .partial();
+type Movimientos = z.infer<typeof select>;
+type MovimientosInsert = z.infer<typeof insert>;
+type MovimientosUpdate = z.infer<typeof update>;
+type MovimientosFilter = z.infer<typeof filter>;
+type MovimientosPk = z.infer<typeof pk>;
 
-// para UPDATE /movimientos
-export const movimientosUpdateSchema = movimientosSchema.partial();
-
+export const movimientosValidator = {
+    select,
+    insert,
+    update,
+    filter,
+    pk
+};

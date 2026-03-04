@@ -10,18 +10,31 @@ import {
     uniqueIndex
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./util";
-import { usuarios } from "./usuarios.schema";
+import { usuariosTable } from "./usuarios.schema";
 
-export const monedaEnum = pgEnum("moneda_enum", ["ARS", "USD", "EUR", "BRL"]);
+export const monedaTypes = {
+    ARS: "ARS",
+    USD: "USD",
+    EUR: "EUR",
+    BRL: "BRL"
+} as const;
 
-export const cuentas = pgTable(
+export type MonedaType =
+    (typeof monedaTypes)[keyof typeof monedaTypes];
+
+export const monedaTypesKeys = Object.values(monedaTypes) as [
+    MonedaType
+];
+export const monedaEnum = pgEnum("monedaTypes", monedaTypesKeys);
+
+export const cuentasTable = pgTable(
     "cuentas",
     {
         id: serial("id").primaryKey(),
 
         usuarioId: integer("usuario_id")
             .notNull()
-            .references(() => usuarios.id),
+            .references(() => usuariosTable.id),
 
         cvu: varchar("cvu", { length: 22 }).notNull().unique(),
 

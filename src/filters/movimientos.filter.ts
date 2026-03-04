@@ -1,11 +1,18 @@
 import { FilterMap } from "bradb";
-import { and, eq } from "drizzle-orm";
-import { movimientos } from "../schemas/movimientos.schema";
-import { movimientosFilterSchema } from "../validators/movimientos.validator";
+import { eq } from "drizzle-orm";
+import { movimientosTable } from "../schemas/movimientos.schema"
+import { movimientosValidator } from "../validators/movimientos.validator";
 
-export const movimientosFilterMap: FilterMap<typeof movimientosFilterSchema> = {
-    cuentaId: (value) => eq(movimientos.cuentaId, value),
-    tipoOperacion: (value) => eq(movimientos.tipoOperacion, value),
-    sentido: (value) => eq(movimientos.sentido, value)
-};
-
+export const movimientosFilterMap: FilterMap<typeof movimientosValidator.filter> = {
+    id: (val) => eq(movimientosTable.id, val),
+	cuentaId: (val) => eq(movimientosTable.cuentaId, val),
+	tipoOperacion: (val) => eq(movimientosTable.tipoOperacion, val),
+	referenciaId: (val) => eq(movimientosTable.referenciaId, val),
+	sentido: (val) => eq(movimientosTable.sentido, val),
+	monto: (val) => eq(movimientosTable.monto, val),
+	saldoPosterior: (val) => eq(movimientosTable.saldoPosterior, val),
+	descripcion: (val) => eq(movimientosTable.descripcion, val),
+	createdAt: (val) => eq(movimientosTable.createdAt, val),
+	updatedAt: (val) => eq(movimientosTable.updatedAt, val),
+	deletedAt: (val) => eq(movimientosTable.deletedAt, val)
+}

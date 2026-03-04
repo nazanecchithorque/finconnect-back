@@ -1,35 +1,36 @@
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createFilterSchema, createPkSchema } from "bradb";
 import { z } from "zod";
+import { usuariosTable } from "../schemas/usuarios.schema";
 
-/*
-    Campos que pone el usuario: nombre, apellido, email, password. (VAN EN EL VALIDATOR)
-
-    Campos que pone el back: id, createdAt, deletedAt (NO VAN EN EL VALIDATOR)
-
-    Campos de estado interno: activo (PUEDE IR)
-*/
-
-// esquema del usuario ya sea CREATE, UPDATE, FILTER
-export const usuariosSchema = z.object({
-    nombre: z.string().min(1),
-    apellido: z.string().min(1),
-    email: z.string().email(),
-    dni: z.string(),
-    genero: z.enum(["masculino", "femenino", "otro"])
+const select = createSelectSchema(usuariosTable).omit({
+    passwordHash: true,
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true
+});
+const insert = createInsertSchema(usuariosTable).omit({
+    passwordHash: true,
+    activo: true,
+}).extend({
+    password: z.string().min(8),
+});
+const update = insert.partial();
+const filter = createFilterSchema(usuariosTable).partial();
+const pk = createPkSchema(usuariosTable).pick({
+    id: true
 });
 
-/* el CREATE esta solo en AUTH
-// para el POST /usuarios
-export const usuariosCreateSchema = usuariosSchema.extend({
-    password: z.string().min(8)
-});
-*/
+type Usuarios = z.infer<typeof select>;
+type UsuariosInsert = z.infer<typeof insert>;
+type UsuariosUpdate = z.infer<typeof update>;
+type UsuariosFilter = z.infer<typeof filter>;
+type UsuariosPk = z.infer<typeof pk>;
 
-// para el GET /usuarios
-export const usuariosFilterSchema = usuariosSchema
-    .extend({
-        activo: z.number().int()
-    })
-    .partial();
-
-// para el PUT-PATCH /usuarios
-export const usuariosUpdateSchema = usuariosSchema.partial(); //todos los campos son opcionales
+export const usuariosValidator = {
+    select,
+    insert,
+    update,
+    filter,
+    pk
+};
