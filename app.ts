@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import { usuariosRouter } from "@/routes/usuarios.router";
 import authRoutes from "@/routes/auth.router";
 import { cuentasRouter } from "@/routes/cuentas.router";
@@ -6,6 +6,7 @@ import { errorHandler } from "bradb";
 import { movimientosRouter } from "@/routes/movimientos.router";
 import { transferenciasRouter } from "@/routes/transferencias.router";
 import { requestLogger, responseLogger } from "@/middlewares/logging";
+import { customErrorHandler } from "@/middlewares/errorHandler";
 
 export const app = express();
 
@@ -20,18 +21,11 @@ app.use("/cuentas", cuentasRouter);
 app.use("/movimientos", movimientosRouter);
 app.use("/transferencias", transferenciasRouter);
 
-// Importante ponerlo despues de todas las rutas, de otra forma no va a agarrar los errores
 // Healthcheck
-app.use("/eso", (req, res) => {
+app.get("/eso", (_req, res) => {
   res.send("brad");
 });
 
+// Importante ponerlo despues de todas las rutas, de otra forma no va a agarrar los errores
 app.use(errorHandler);
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-
-  res.status(500).json({
-    code: 500,
-    message: "Internal Server error",
-  });
-});
+app.use(customErrorHandler);
