@@ -4,7 +4,13 @@ import { z } from "zod";
 import { transferenciasTable } from "../schemas/transferencias.schema";
 
 const select = createSelectSchema(transferenciasTable);
-const insert = createInsertSchema(transferenciasTable);
+const insert = createInsertSchema(transferenciasTable)
+.omit({
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true,
+    estado: true,
+});
 const update = insert.partial();
 const filter = createFilterSchema(transferenciasTable).partial();
 const pk = createPkSchema(transferenciasTable).pick({
