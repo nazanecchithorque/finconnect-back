@@ -1,5 +1,6 @@
 import { seedUsuarios } from "./usuarios.seed";
 import { seedCuentas } from "./cuentas.seed";
+import { seedCriptomonedas } from "./criptomonedas.seed";
 import { seedTransferencias } from "./transferencias.seed";
 import { db } from "../src/db";
 import { getTableName, sql } from "drizzle-orm";
@@ -14,6 +15,7 @@ async function main() {
 
     await seedUsuarios();
     await seedCuentas();
+    await seedCriptomonedas();
     await seedTransferencias();
     process.exit(0);
 }

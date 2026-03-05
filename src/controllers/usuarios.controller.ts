@@ -6,6 +6,8 @@ import bcrypt from "bcrypt";
 import { db } from "@/db";
 import { monedaTypesKeys } from "@/schemas/cuentas.schema";
 import { cuentasService } from "@/services/cuentas.service";
+import { criptomonedasService } from "@/services/criptomonedas.service";
+import { tipoCriptomonedaKeys } from "@/schemas/criptomonedas.schema";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
@@ -54,15 +56,15 @@ async function create(req: Request, res: Response) {
                 moneda: monedaType,
             }, tx);
         }
-        res.status(201).json(item);
+        for(const tipoCriptomoneda of tipoCriptomonedaKeys) {
+            await criptomonedasService.create({
+                usuarioId: item.id,
+                tipoCriptomoneda: tipoCriptomoneda,
+                monto: "0.00",
+            }, tx);
+        }
+        res.status(201).json({message: "Usuario creado correctamente"});
     });
-}
-
-async function update(req: Request, res: Response) {
-    const pk = usuariosValidator.pk.parse(req.params);
-    const data = usuariosValidator.update.parse(req.body);
-    const item = await usuariosService.update(pk, data);
-    res.status(200).json(item);
 }
 
 async function remove(req: Request, res: Response) {
@@ -75,6 +77,5 @@ export const usuariosController = {
     getAll,
     getOne,
     create,
-    update,
     remove
 };

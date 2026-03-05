@@ -84,16 +84,9 @@ async function update(req: Request, res: Response) {
     res.status(200).json(item);
 }
 
-async function remove(req: Request, res: Response) {
-    const pk = transferenciasValidator.pk.parse(req.params);
-    await transferenciasService.delete(pk);
-    res.status(204).send();
-}
-
 export const transferenciasController = {
     getAll,
     getOne,
     create,
     update,
-    remove
 };

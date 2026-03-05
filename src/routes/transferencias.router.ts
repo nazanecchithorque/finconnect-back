@@ -13,9 +13,3 @@ transferenciasRouter.post("/", authMiddleware, transferenciasController.create);
 
 // Get one
 transferenciasRouter.get("/:id", authMiddleware, transferenciasController.getOne);
-
-// Update
-transferenciasRouter.put("/:id", authMiddleware, transferenciasController.update);
-
-// Delete
-transferenciasRouter.delete("/:id", authMiddleware, transferenciasController.remove);
