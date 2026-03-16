@@ -2,11 +2,16 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { createFilterSchema, createPkSchema } from "bradb";
 import { z } from "zod";
 import { movimientosTable } from "../schemas/movimientos.schema";
+import { strToNumber } from "./util";
 
 const select = createSelectSchema(movimientosTable);
 const insert = createInsertSchema(movimientosTable);
 const update = insert.partial();
-const filter = createFilterSchema(movimientosTable).partial();
+const filter = createFilterSchema(movimientosTable)
+.extend({
+    usuarioId: strToNumber(),
+})
+.partial();
 const pk = createPkSchema(movimientosTable).pick({
     id: true
 });

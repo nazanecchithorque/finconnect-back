@@ -1,5 +1,5 @@
 import { FilterMap } from "bradb";
-import { eq } from "drizzle-orm";
+import { eq, or, ilike } from "drizzle-orm";
 import { cuentasTable } from "../schemas/cuentas.schema"
 import { cuentasValidator } from "../validators/cuentas.validator";
 
@@ -12,5 +12,6 @@ export const cuentasFilterMap: FilterMap<typeof cuentasValidator.filter> = {
 	saldo: (val) => eq(cuentasTable.saldo, val),
 	activo: (val) => eq(cuentasTable.activo, val),
 	deletedAt: (val) => eq(cuentasTable.deletedAt, val),
-	createdAt: (val) => eq(cuentasTable.createdAt, val)
+	createdAt: (val) => eq(cuentasTable.createdAt, val),
+	search: (val) => or(ilike(cuentasTable.alias, `${val}`), ilike(cuentasTable.cvu, `${val}`))!,
 }

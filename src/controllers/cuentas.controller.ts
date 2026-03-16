@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { newPagination } from "bradb";
 import { cuentasService } from "../services/cuentas.service"
 import { cuentasValidator } from "../validators/cuentas.validator";
+import { NotFoundError } from "@/errors/http.error";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
@@ -17,6 +18,20 @@ async function getAll(req: Request, res: Response) {
         items,
         total: pagination.total // this is going to be removed
     });
+}
+
+async function searchByAliasOCvu(req: Request, res: Response) {
+    const data = cuentasValidator.searchByAliasOrCvueltas.parse(req.query);
+    const [item] = await cuentasService.findAllExtraData(
+        {
+            search: data.search
+        }
+    );
+    if(!item) {
+        throw new NotFoundError("Cuenta no encontrada");
+    }
+
+    res.json(item);
 }
 
 async function getOne(req: Request, res: Response) {
@@ -42,5 +57,6 @@ export const cuentasController = {
     getAll,
     getOne,
     update,
-    remove
+    remove,
+    searchByAliasOCvu
 };

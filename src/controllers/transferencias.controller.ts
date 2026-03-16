@@ -64,6 +64,11 @@ async function create(req: Request, res: Response) {
             descripcion: `Transferencia a ${cuentaDestino.alias}`,
             saldoPosterior: (Number(cuentaOrigen.saldo) - Number(data.monto)).toString()
         }, tx);
+        
+        await cuentasService.update({ id: cuentaOrigen.id }, {
+            saldo: (Number(cuentaOrigen.saldo) - Number(data.monto)).toString()
+        }, tx);
+        
         await movimientosService.create({
             cuentaId: cuentaDestino.id,
             tipoOperacion: tipoOperacion.transferencia,
@@ -72,6 +77,10 @@ async function create(req: Request, res: Response) {
             monto: data.monto,
             descripcion: `Transferencia desde ${cuentaOrigen.alias}`,
             saldoPosterior: (Number(cuentaDestino.saldo) + Number(data.monto)).toString()
+        }, tx);
+
+        await cuentasService.update({ id: cuentaDestino.id }, {
+            saldo: (Number(cuentaDestino.saldo) + Number(data.monto)).toString()
         }, tx);
         res.status(201).json(transferencia);
     });

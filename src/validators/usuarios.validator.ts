@@ -2,6 +2,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { createFilterSchema, createPkSchema } from "bradb";
 import { z } from "zod";
 import { usuariosTable } from "../schemas/usuarios.schema";
+import { strToNumber } from "./util";
 
 const select = createSelectSchema(usuariosTable).omit({
     passwordHash: true,
@@ -16,7 +17,9 @@ const insert = createInsertSchema(usuariosTable).omit({
     password: z.string().min(8),
 });
 const update = insert.partial();
-const filter = createFilterSchema(usuariosTable).partial();
+const filter = createFilterSchema(usuariosTable)
+
+.partial();
 const pk = createPkSchema(usuariosTable).pick({
     id: true
 });

@@ -14,3 +14,5 @@ cuentasRouter.put("/:id", authMiddleware, cuentasController.update);
 
 // Delete
 cuentasRouter.delete("/:id", authMiddleware, cuentasController.remove);
+// Search by alias or cvu
+cuentasRouter.post("/search", authMiddleware, cuentasController.searchByAliasOCvu);

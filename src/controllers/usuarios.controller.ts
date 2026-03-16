@@ -65,6 +65,13 @@ async function create(req: Request, res: Response) {
         }
         res.status(201).json({message: "Usuario creado correctamente"});
     });
+    
+}
+async function update(req: Request, res: Response) {
+    const pk = usuariosValidator.pk.parse(req.params);
+    const data = usuariosValidator.update.parse(req.body);
+    const item = await usuariosService.update(pk, data);
+    res.status(200).json(item);
 }
 
 async function remove(req: Request, res: Response) {
@@ -77,5 +84,6 @@ export const usuariosController = {
     getAll,
     getOne,
     create,
+    update,
     remove
 };

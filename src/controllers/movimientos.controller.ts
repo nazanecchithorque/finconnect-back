@@ -6,7 +6,10 @@ import { movimientosValidator } from "../validators/movimientos.validator";
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
     const filters = movimientosValidator.filter.parse(req.query);
-    const items = await movimientosService.findAll(filters, pagination);
+    const items = await movimientosService.findAll({
+        ...filters,
+        usuarioId: res.locals.user.id
+    }, pagination);
 
     res.json({
         pagination,
