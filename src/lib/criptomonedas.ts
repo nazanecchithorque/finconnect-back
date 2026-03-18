@@ -249,3 +249,15 @@ export async function getCriptoPreciosPorTipo(
     const symbols = Object.values(TIPO_TO_SYMBOL);
     return getCriptoPrecios(symbols, convert);
 }
+export const criptoSiglasMap: Record<string, string> = {
+    bitcoin: "BTC",
+    ethereum: "ETH",
+    usdt: "USDT",
+    solana: "SOL",
+    cardano: "ADA",
+    polkadot: "DOT",
+    avalanche: "AVAX",
+    binance: "BNB",
+    xrp: "XRP",
+    dogecoin: "DOGE"
+};
