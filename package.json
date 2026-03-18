@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "dev": "nodemon --exec ts-node -r tsconfig-paths/register index.ts",
+        "mock": "MOCK=true nodemon --exec ts-node -r tsconfig-paths/register index.ts",
         "prod": "npm run build && node -r tsconfig-paths/register dist/index.js",
         "build": "rm -rf dist/ && tsc",
         "test": "ts-node seeders/index.ts && vitest",

@@ -33,7 +33,17 @@ const baseSchema = z.object({
 
     // JWT
     JWT_SECRET: z.string().transform((e) => e as Secret),
-    JWT_EXPIRES_IN: z.string().default("1000h")
+    JWT_EXPIRES_IN: z.string().default("1000h"),
+
+    // CoinMarketCap
+    COINMARKETCAP_API_KEY: z.string().optional(),
+
+    // Mock (evita llamadas a APIs externas como CoinMarketCap)
+    MOCK: z
+        .string()
+        .optional()
+        .default("false")
+        .transform((v) => v === "true")
 });
 
 const prodSchema = baseSchema.transform((env) => ({

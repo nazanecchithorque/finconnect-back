@@ -12,6 +12,13 @@ export const tipoCriptomoneda = {
     bitcoin: "bitcoin",
     ethereum: "ethereum",
     usdt: "usdt",
+    solana: "solana",
+    cardano: "cardano",
+    polkadot: "polkadot",
+    avalanche: "avalanche",
+    binance: "binance",
+    xrp: "xrp",
+    dogecoin: "dogecoin"
 } as const;
 
 export type TipoCriptomonedaType =
