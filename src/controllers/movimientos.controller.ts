@@ -24,6 +24,7 @@ async function getOne(req: Request, res: Response) {
     res.json(item);
 }
 
+
 async function create(req: Request, res: Response) {
     const data = movimientosValidator.insert.parse(req.body);
     const item = await movimientosService.create(data);

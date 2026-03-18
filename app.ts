@@ -6,6 +6,7 @@ import { errorHandler } from "bradb";
 import { movimientosRouter } from "@/routes/movimientos.router";
 import { transferenciasRouter } from "@/routes/transferencias.router";
 import { criptomonedasRouter } from "@/routes/criptomonedas.router";
+import { tarjetasRouter } from "@/routes/tarjetas.router";
 import { requestLogger, responseLogger } from "@/middlewares/logging";
 import { customErrorHandler } from "@/middlewares/errorHandler";
 
@@ -22,6 +23,7 @@ app.use("/cuentas", cuentasRouter);
 app.use("/movimientos", movimientosRouter);
 app.use("/transferencias", transferenciasRouter);
 app.use("/criptomonedas", criptomonedasRouter);
+app.use("/tarjetas", tarjetasRouter);
 
 // Healthcheck
 app.get("/eso", (_req, res) => {
