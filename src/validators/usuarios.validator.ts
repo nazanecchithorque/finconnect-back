@@ -7,7 +7,6 @@ import { strToNumber } from "./util";
 const select = createSelectSchema(usuariosTable).omit({
     passwordHash: true,
     createdAt: true,
-    updatedAt: true,
     deletedAt: true
 });
 const insert = createInsertSchema(usuariosTable).omit({
