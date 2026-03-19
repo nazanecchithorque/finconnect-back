@@ -1,5 +1,5 @@
 import { FilterMap } from "bradb";
-import { eq } from "drizzle-orm";
+import { eq, or, inArray, sql } from "drizzle-orm";
 import { transferenciasTable } from "../schemas/transferencias.schema"
 import { transferenciasValidator } from "../validators/transferencias.validator";
 
@@ -11,5 +11,9 @@ export const transferenciasFilterMap: FilterMap<typeof transferenciasValidator.f
 	estado: (val) => eq(transferenciasTable.estado, val),
 	createdAt: (val) => eq(transferenciasTable.createdAt, val),
 	updatedAt: (val) => eq(transferenciasTable.updatedAt, val),
-	deletedAt: (val) => eq(transferenciasTable.deletedAt, val)
+	deletedAt: (val) => eq(transferenciasTable.deletedAt, val),
+	cuentaIds: (val) => (val.length === 0 ? sql`false` : or(
+		inArray(transferenciasTable.cuentaOrigenId, val),
+		inArray(transferenciasTable.cuentaDestinoId, val)
+	)!),
 }

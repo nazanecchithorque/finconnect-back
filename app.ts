@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { usuariosRouter } from "@/routes/usuarios.router";
 import authRoutes from "@/routes/auth.router";
 import { cuentasRouter } from "@/routes/cuentas.router";
@@ -13,6 +14,7 @@ import { criptoTransactionRouter } from "@/routes/criptoTransaction.router";
 
 export const app = express();
 
+app.use(cors());
 app.use(requestLogger);
 app.use(responseLogger);
 

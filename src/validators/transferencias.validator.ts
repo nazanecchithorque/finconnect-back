@@ -12,7 +12,9 @@ const insert = createInsertSchema(transferenciasTable)
     estado: true,
 });
 const update = insert.partial();
-const filter = createFilterSchema(transferenciasTable).partial();
+const filter = createFilterSchema(transferenciasTable)
+    .extend({ cuentaIds: z.array(z.number()).optional() })
+    .partial();
 const pk = createPkSchema(transferenciasTable).pick({
     id: true
 });

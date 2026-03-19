@@ -14,7 +14,9 @@ const insert = createInsertSchema(criptoTransactionTable)
     monto: true,
 });
 const update = insert.partial();
-const filter = createFilterSchema(criptoTransactionTable).partial();
+const filter = createFilterSchema(criptoTransactionTable)
+    .extend({ cuentaIds: z.array(z.number()).optional() })
+    .partial();
 const pk = createPkSchema(criptoTransactionTable).pick({
     id: true
 });

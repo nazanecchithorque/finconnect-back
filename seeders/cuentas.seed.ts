@@ -4,6 +4,7 @@ import { cuentasTable } from "../src/schemas/cuentas.schema";
 import { usuariosTable } from "../src/schemas/usuarios.schema";
 import { InferInsertModel } from "drizzle-orm";
 import { monedaTypesKeys } from "../src/schemas/cuentas.schema";
+import { userRoles } from "../src/schemas/usuarios.schema";
 
 type CuentaInsert = InferInsertModel<typeof cuentasTable>;
 
@@ -22,6 +23,7 @@ export async function seedCuentas() {
     const cuentasSeed: CuentaInsert[] = [];
 
     for (const usuario of usuariosDb) {
+        if (usuario.role !== userRoles.finalUser) continue;
         for (const moneda of monedaTypesKeys) {
             cuentasSeed.push({
                 usuarioId: usuario.id,

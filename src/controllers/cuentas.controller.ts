@@ -3,15 +3,16 @@ import { newPagination } from "bradb";
 import { cuentasService } from "../services/cuentas.service"
 import { cuentasValidator } from "../validators/cuentas.validator";
 import { NotFoundError } from "@/errors/http.error";
+import { userRoles } from "@/schemas/usuarios.schema";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
     const filters = cuentasValidator.filter.parse(req.query);
-    const items = await cuentasService.findAll(
-        {
-            ...filters,
-            usuarioId: res.locals.user.id
-        }, pagination);
+    const baseFilters = { ...filters };
+    if (res.locals.user.role === userRoles.finalUser) {
+        (baseFilters as Record<string, unknown>).usuarioId = res.locals.user.id;
+    }
+    const items = await cuentasService.findAll(baseFilters, pagination);
 
     res.json({
         pagination,
