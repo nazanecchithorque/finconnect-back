@@ -6,6 +6,7 @@ import {
     criptomonedasTable,
     tipoCriptomonedaKeys
 } from "../src/schemas/criptomonedas.schema";
+import { userRoles } from "../src/schemas/usuarios.schema";
 
 type CriptomonedaInsert = InferInsertModel<typeof criptomonedasTable>;
 
@@ -16,6 +17,7 @@ export async function seedCriptomonedas() {
     const criptomonedasSeed: CriptomonedaInsert[] = [];
 
     for (const usuario of usuariosDb) {
+        if (usuario.role !== userRoles.finalUser) continue;
         for (const tipoCriptomoneda of tipoCriptomonedaKeys) {
             criptomonedasSeed.push({
                 usuarioId: usuario.id,

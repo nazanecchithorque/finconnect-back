@@ -2,14 +2,16 @@ import { Request, Response } from "express";
 import { newPagination } from "bradb";
 import { movimientosService } from "../services/movimientos.service"
 import { movimientosValidator } from "../validators/movimientos.validator";
+import { userRoles } from "@/schemas/usuarios.schema";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
     const filters = movimientosValidator.filter.parse(req.query);
-    const items = await movimientosService.findAll({
-        ...filters,
-        usuarioId: res.locals.user.id
-    }, pagination);
+    const baseFilters = { ...filters };
+    if (res.locals.user.role === userRoles.finalUser) {
+        (baseFilters as Record<string, unknown>).usuarioId = res.locals.user.id;
+    }
+    const items = await movimientosService.findAll(baseFilters, pagination);
 
     res.json({
         pagination,

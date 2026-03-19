@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Forbidden, newPagination, NotFound } from "bradb";
+import { Forbidden, newPagination } from "bradb";
 import { transferenciasService } from "../services/transferencias.service"
 import { transferenciasValidator } from "../validators/transferencias.validator";
 import { estadoTransferencia } from "@/schemas/transferencias.schema";
@@ -7,11 +7,19 @@ import { db } from "@/db";
 import { cuentasService } from "@/services/cuentas.service";
 import { movimientosService } from "@/services/movimientos.service";
 import { sentidoMovimiento, tipoOperacion } from "@/schemas/movimientos.schema";
+import { userRoles } from "@/schemas/usuarios.schema";
+import { cuentasTable } from "@/schemas/cuentas.schema";
+import { eq } from "drizzle-orm";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
     const filters = transferenciasValidator.filter.parse(req.query);
-    const items = await transferenciasService.findAll(filters, pagination);
+    const baseFilters = { ...filters };
+    if (res.locals.user.role === userRoles.finalUser) {
+        const cuentas = await db.select({ id: cuentasTable.id }).from(cuentasTable).where(eq(cuentasTable.usuarioId, res.locals.user.id));
+        (baseFilters as Record<string, unknown>).cuentaIds = cuentas.map((c) => c.id);
+    }
+    const items = await transferenciasService.findAll(baseFilters, pagination);
 
     res.json({
         pagination,
@@ -33,7 +41,6 @@ async function create(req: Request, res: Response) {
     if(!cuentaOrigen.activo) {
         throw new Forbidden("Tu cuenta no esta activa");
     }
-    console.log(cuentaOrigen.usuarioId, usuario.id);
     if(Number(cuentaOrigen.usuarioId) !== Number(usuario.id)) {
         throw new Forbidden("No tenes permisos para crear transferencias en esta cuenta");
     }
@@ -47,7 +54,7 @@ async function create(req: Request, res: Response) {
     if(cuentaDestino.moneda !== cuentaOrigen.moneda) {
         throw new Forbidden("No podes transferir a una cuenta de diferente moneda");
     }
-    if(cuentaDestino.saldo < data.monto) {
+    if(Number(cuentaOrigen.saldo) < Number(data.monto)) {
         throw new Forbidden("No tenes suficiente saldo en tu cuenta");
     }
     db.transaction(async (tx) => {

@@ -11,15 +11,19 @@ import { criptomonedasService } from "@/services/criptomonedas.service";
 import { db } from "@/db";
 import { movimientosService } from "@/services/movimientos.service";
 import { sentidoMovimiento, tipoOperacion } from "@/schemas/movimientos.schema";
-
-
-
-
+import { userRoles } from "@/schemas/usuarios.schema";
+import { cuentasTable } from "@/schemas/cuentas.schema";
+import { eq } from "drizzle-orm";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
     const filters = criptoTransactionValidator.filter.parse(req.query);
-    const items = await criptoTransactionService.findAll(filters, pagination);
+    const baseFilters = { ...filters };
+    if (res.locals.user.role === userRoles.finalUser) {
+        const cuentas = await db.select({ id: cuentasTable.id }).from(cuentasTable).where(eq(cuentasTable.usuarioId, res.locals.user.id));
+        (baseFilters as Record<string, unknown>).cuentaIds = cuentas.map((c) => c.id);
+    }
+    const items = await criptoTransactionService.findAll(baseFilters, pagination);
 
     res.json({
         pagination,

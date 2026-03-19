@@ -8,6 +8,7 @@ import { monedaTypesKeys } from "@/schemas/cuentas.schema";
 import { cuentasService } from "@/services/cuentas.service";
 import { criptomonedasService } from "@/services/criptomonedas.service";
 import { tipoCriptomonedaKeys } from "@/schemas/criptomonedas.schema";
+import { userRoles } from "@/schemas/usuarios.schema";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
@@ -35,6 +36,10 @@ async function create(req: Request, res: Response) {
             ...data,
             passwordHash
         }, tx);
+        if (data.role === userRoles.admin) {
+            res.status(201).json({ message: "Usuario registrado correctamente" });
+            return;
+        }
         for(const monedaType of monedaTypesKeys) {
             let alias = "";
             let cvu = "";
