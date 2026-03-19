@@ -9,3 +9,9 @@ criptomonedasRouter.get(
     authMiddleware,
     criptomonedasController.getCriptoPrices
 );
+
+criptomonedasRouter.get(
+    "/",
+    authMiddleware,
+    criptomonedasController.getAll
+);

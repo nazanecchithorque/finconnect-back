@@ -36,9 +36,9 @@ La transferencia es la operación de negocio.
 */
 
 export const criptomonedasTable = pgTable("criptomonedas", {
-    usuarioId: integer("usuario_id").notNull().references(() => usuariosTable.id),
-    tipoCriptomoneda: tipoCriptomonedaEnum("tipo_criptomoneda").notNull(),
-    monto: numeric("monto", { precision: 18, scale: 2 }).notNull(),
+    usuarioId: integer("usuarioId").notNull().references(() => usuariosTable.id),
+    tipoCriptomoneda: tipoCriptomonedaEnum("tipoCriptomoneda").notNull(),
+    monto: numeric("monto", { precision: 40, scale: 18 }).notNull(),
     ...timestamps
 }, (table) => [
     primaryKey({ columns: [table.usuarioId, table.tipoCriptomoneda] })

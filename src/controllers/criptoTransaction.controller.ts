@@ -78,7 +78,7 @@ async function create(req: Request, res: Response) {
                 sentido: sentidoMovimiento.ingreso,
                 referenciaId: criptoTransaction.id,
                 monto: criptoTransaction.monto,
-                descripcion: `Ingreso de ${data.tipoCriptomoneda}`,
+                descripcion: `Venta de ${data.tipoCriptomoneda}`,
                 saldoPosterior: (parseFloat(cuenta.saldo) + parseFloat((parseFloat(data.cantidad) * precio.price).toString())).toString()
             }, tx);
         });
@@ -100,13 +100,12 @@ async function create(req: Request, res: Response) {
                 sentido: sentidoMovimiento.egreso,
                 referenciaId: criptoTransaction.id,
                 monto: criptoTransaction.monto,
-                descripcion: `Egreso de ${data.tipoCriptomoneda}`,
+                descripcion: `Compra de ${data.tipoCriptomoneda}`,
                 saldoPosterior: (parseFloat(cuenta.saldo) - parseFloat((parseFloat(data.cantidad) * precio.price).toString())).toString()
             }, tx);
         });
     }
-
-    res.status(204);
+    res.status(204).send();
 }
 
 async function update(req: Request, res: Response) {
