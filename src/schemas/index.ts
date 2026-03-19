@@ -3,3 +3,4 @@ export * from "./cuentas.schema";
 export * from "./movimientos.schema";
 export * from "./transferencias.schema";
 export * from "./tarjetas.schema";
+export * from "./currencyConversion.schema";

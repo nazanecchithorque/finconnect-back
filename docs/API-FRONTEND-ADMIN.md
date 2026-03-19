@@ -70,7 +70,7 @@ Authorization: Bearer <token>
 
 ## Paginación
 
-Los listados (`GET /usuarios`, `/cuentas`, `/movimientos`, etc.) soportan paginación por query params:
+Los listados (`GET /usuarios`, `/cuentas`, `/movimientos`, `/transferencias`, `/criptomonedas`, `/cripto-transactions`, `/pagos-servicios`, etc.) soportan paginación por query params:
 
 | Parámetro | Tipo | Default | Descripción |
 |-----------|------|---------|-------------|
@@ -293,12 +293,133 @@ Query params:
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/tarjetas` | Sí | Listar tarjetas del usuario |
-| POST | `/tarjetas` | Sí | Crear tarjeta |
-| POST | `/tarjetas/:id/bloquear` | Sí | Bloquear tarjeta (definitivo) |
-| POST | `/tarjetas/:id/parar` | Sí | Pausar / reanudar tarjeta |
-| POST | `/tarjetas/:id/cancelar` | Sí | Cancelar tarjeta |
+| GET | `/tarjetas` | Sí | Listar tarjetas del usuario (de todas sus cuentas) |
+| POST | `/tarjetas` | Sí | Crear tarjeta virtual |
+| POST | `/tarjetas/:id/bloquear` | Sí | Bloquear tarjeta (definitivo → estado `cancelada`) |
+| POST | `/tarjetas/:id/parar` | Sí | Pausar / reanudar tarjeta (alterna `activa` ↔ `bloqueada`) |
+| POST | `/tarjetas/:id/cancelar` | Sí | Cancelar tarjeta (igual que bloquear) |
 | DELETE | `/tarjetas/:id` | Sí | Eliminar tarjeta (soft delete) |
+
+**POST /tarjetas:**
+```json
+{
+  "cuentaId": 1
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| cuentaId | number | ID de la cuenta. Debe ser del usuario, activa y sin otra tarjeta activa. |
+
+**Respuesta 201:**
+```json
+{
+  "tarjeta": { "id": 1, "cuentaId": 1, "ultimos4": "1234", "marca": "mastercard", "estado": "activa", ... },
+  "numeroCompleto": "5412345678901234",
+  "numeroEnmascarado": "**** **** **** 1234"
+}
+```
+
+**Estados:** `activa` | `bloqueada` | `cancelada`. Solo una tarjeta activa por cuenta.
+
+---
+
+### Servicios (pagos de facturas)
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/pagos-servicios` | Sí | Listar pagos de servicios (paginado) |
+| GET | `/pagos-servicios/:id` | Sí | Obtener un pago |
+| POST | `/pagos-servicios` | Sí | Pagar una factura de servicio |
+| PATCH | `/pagos-servicios/:id` | Sí | Actualizar pago |
+| DELETE | `/pagos-servicios/:id` | Sí | Eliminar pago (soft delete) |
+
+**POST /pagos-servicios** (pagar factura):
+```json
+{
+  "facturaId": 1,
+  "cuentaId": 2
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| facturaId | number | ID de la factura pendiente |
+| cuentaId | number | ID de la cuenta desde la que se paga |
+
+**Reglas:** La factura debe ser del usuario, estar en estado `pendiente`, la cuenta debe ser del usuario, activa y tener saldo ≥ monto de la factura. Al pagar, se debita la cuenta, se crea movimiento tipo `pagoservicio` y la factura pasa a `pagada`.
+
+**Filtros en GET:** `facturaId`, `cuentaId`, `monto`, etc.
+
+---
+
+### Conversión de monedas (Frankfurter API)
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/currencies/convert?from=USD&amount=100` | Sí | Convierte un monto de una moneda a todas las demás |
+
+**Query params:**
+- `from` (requerido): Código de moneda origen (USD, EUR, GBP, BRL, etc.)
+- `amount` (opcional): Monto a convertir (default: 1)
+
+**Respuesta 200:**
+```json
+{
+  "amount": 100,
+  "base": "USD",
+  "date": "2026-03-19",
+  "rates": {
+    "EUR": 87.04,
+    "GBP": 75.19,
+    "BRL": 529.87,
+    "ARS": 95000,
+    ...
+  }
+}
+```
+
+---
+
+### Conversión entre cuentas propias
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/currency-conversions` | Sí | Convertir moneda entre cuentas del mismo usuario |
+
+**POST /currency-conversions:**
+```json
+{
+  "cuentaOrigenId": 1,
+  "cuentaDestinoId": 2,
+  "montoOrigen": "100.00"
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| cuentaOrigenId | number | ID de la cuenta desde la que se debita |
+| cuentaDestinoId | number | ID de la cuenta a la que se acredita |
+| montoOrigen | string | Monto en la moneda de la cuenta origen |
+
+**Reglas:**
+- Ambas cuentas deben ser del usuario autenticado.
+- Ambas deben estar activas.
+- Deben ser cuentas distintas y de **monedas diferentes** (para misma moneda usar `/transferencias`).
+- La cuenta origen debe tener saldo ≥ montoOrigen.
+- La tasa de cambio se obtiene de la API Frankfurter (o mock si `MOCK=true`).
+
+**Respuesta 201:**
+```json
+{
+  "message": "Conversión realizada correctamente",
+  "montoOrigen": 100,
+  "montoDestino": 87.04,
+  "tasaCambio": 0.8704
+}
+```
+
+Se crean movimientos tipo `conversion` en ambas cuentas.
 
 ---
 
@@ -328,17 +449,22 @@ En los `GET` de listados, el filtro por usuario **solo se aplica si el token es 
 | Transferencias | Ve todas las transferencias | Solo transferencias donde participa (origen o destino) |
 | Criptomonedas | Ve todas las cajas | Solo sus cajas |
 | Cripto-transactions | Ve todas las transacciones | Solo transacciones de sus cuentas |
+| Tarjetas | N/A (admin sin cuentas) | Solo sus tarjetas (por sus cuentas) |
+| Pagos-servicios | Lista todos los pagos | Lista todos (filtrar por factura/cuenta si aplica) |
 
-**Usuarios** y **Tarjetas** pueden tener lógica propia según el recurso.
+**Usuarios** no se filtra por rol (admin puede listar todos).
 
 ---
 
 ## Modo mock
 
-Para desarrollo sin consumir APIs externas (ej. CoinMarketCap):
+Para desarrollo sin consumir APIs externas (CoinMarketCap, Frankfurter):
 
 ```bash
 npm run mock
 ```
 
-Con `MOCK=true`, el endpoint `/criptomonedas/prices` devuelve datos simulados.
+Con `MOCK=true`:
+- `/criptomonedas/prices` devuelve precios simulados.
+- `/currencies/convert` devuelve tasas de cambio simuladas.
+- `/currency-conversions` usa tasas mock para las conversiones.

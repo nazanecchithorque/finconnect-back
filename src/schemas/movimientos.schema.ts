@@ -27,6 +27,7 @@ export const tipoOperacion = {
     transferencia: "transferencia",
     cripto: "cripto",
     pagoservicio: "pagoservicio",
+    conversion: "conversion",
     otros: "otros"
 } as const;
 

@@ -1,10 +1,13 @@
 import { seedUsuarios } from "./usuarios.seed";
 import { seedCuentas } from "./cuentas.seed";
 import { seedCriptomonedas } from "./criptomonedas.seed";
+import { seedEmpresasServicio } from "./empresas_servicio.seed";
+import { seedFacturas } from "./facturas.seed";
+import { seedPagosServicios } from "./pagos_servicios.seed";
 import { seedTransferencias } from "./transferencias.seed";
+import { seedTarjetas } from "./tarjetas.seed";
 import { db } from "../src/db";
-import { getTableName, sql } from "drizzle-orm";
-import { reset } from "drizzle-seed";
+import { getTableName } from "drizzle-orm";
 
 export async function resetIdentity(table: any) {
     const tableName = getTableName(table)
@@ -12,11 +15,14 @@ export async function resetIdentity(table: any) {
 }
 
 async function main() {
-
     await seedUsuarios();
     await seedCuentas();
     await seedCriptomonedas();
+    await seedEmpresasServicio();
+    await seedFacturas();
+    await seedPagosServicios();
     await seedTransferencias();
+    await seedTarjetas();
     process.exit(0);
 }
 

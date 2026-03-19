@@ -12,6 +12,8 @@ import { requestLogger, responseLogger } from "@/middlewares/logging";
 import { customErrorHandler } from "@/middlewares/errorHandler";
 import { criptoTransactionRouter } from "@/routes/criptoTransaction.router";
 import { pagosServiciosRouter } from "@/routes/pagos_servicios.router";
+import { currenciesRouter } from "@/routes/currencies.router";
+import { currencyConversionRouter } from "@/routes/currencyConversion.router";
 
 export const app = express();
 
@@ -30,6 +32,8 @@ app.use("/criptomonedas", criptomonedasRouter);
 app.use("/tarjetas", tarjetasRouter);
 app.use("/cripto-transactions", criptoTransactionRouter);
 app.use("/pagos-servicios", pagosServiciosRouter);
+app.use("/currencies", currenciesRouter);
+app.use("/currency-conversions", currencyConversionRouter);
 
 // Healthcheck
 app.get("/eso", (_req, res) => {
