@@ -13,6 +13,7 @@ import { movimientosService } from "@/services/movimientos.service";
 import { sentidoMovimiento, tipoOperacion } from "@/schemas/movimientos.schema";
 import { userRoles } from "@/schemas/usuarios.schema";
 import { cuentasTable } from "@/schemas/cuentas.schema";
+import { criptomonedasTable } from "@/schemas/criptomonedas.schema";
 import { eq } from "drizzle-orm";
 
 async function getAll(req: Request, res: Response) {
@@ -44,7 +45,7 @@ async function create(req: Request, res: Response) {
     if (!cuenta) {
         throw new NotFoundError("Cuenta no encontrada");
     }
-    if(cuenta.usuarioId !== parseInt(res.locals.user.id)) {
+    if (Number(cuenta.usuarioId) !== Number(res.locals.user.id)) {
         throw new Forbidden("No tienes permiso para crear una transacción en esta cuenta");
     }
     const precioUnitario = await getCriptoPreciosPorTipo(cuenta.moneda);
@@ -58,8 +59,28 @@ async function create(req: Request, res: Response) {
     if (!precio) {
         throw new NotFoundError("Precio de criptomoneda no encontrado");
     }
-    const cajasCripto = await criptomonedasService.findAll({ usuarioId: res.locals.user.id, tipoCriptomoneda: data.tipoCriptomoneda })
-    if(cajasCripto.length == 0){
+    const uid = Number(res.locals.user.id);
+    let cajasCripto = await criptomonedasService.findAll({
+        usuarioId: uid,
+        tipoCriptomoneda: data.tipoCriptomoneda,
+    });
+    if (cajasCripto.length === 0 && data.sentido === "egreso") {
+        await db
+            .insert(criptomonedasTable)
+            .values({
+                usuarioId: uid,
+                tipoCriptomoneda: data.tipoCriptomoneda,
+                monto: "0",
+            })
+            .onConflictDoNothing({
+                target: [criptomonedasTable.usuarioId, criptomonedasTable.tipoCriptomoneda],
+            });
+        cajasCripto = await criptomonedasService.findAll({
+            usuarioId: uid,
+            tipoCriptomoneda: data.tipoCriptomoneda,
+        });
+    }
+    if (cajasCripto.length === 0) {
         throw new NotFoundError("Caja no encontrada");
     }
     const cajaCripto = cajasCripto[0];

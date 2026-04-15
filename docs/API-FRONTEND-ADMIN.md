@@ -52,9 +52,17 @@ Authorization: Bearer <token>
   "email": "juan@ejemplo.com",
   "dni": "12345678",
   "genero": "masculino",
-  "password": "contraseña123"
+  "password": "contraseña123",
+  "numeroTramite": "12345678901"
 }
 ```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| dni | string | 7 u 8 dígitos (se aceptan puntos; se guardan solo números) |
+| numeroTramite | string (opcional) | Número de trámite del DNI (4–11 dígitos), recomendado para validación RENAPER |
+
+Antes de crear el usuario se valida la identidad: con `MOCK=true` o sin API configurada se aplica validación local (formato DNI, datos coherentes). Con `RENAPER_API_URL` en `.env` se envía un `POST` al servicio configurado (JSON: `dni`, `nombre`, `apellido`, `genero`, `numeroTramite` opcional) y se espera `{ "valido": true }` o HTTP 2xx.
 
 **Respuesta 201:**
 ```json
@@ -70,7 +78,7 @@ Authorization: Bearer <token>
 
 ## Paginación
 
-Los listados (`GET /usuarios`, `/cuentas`, `/movimientos`, `/transferencias`, `/criptomonedas`, `/cripto-transactions`, `/pagos-servicios`, etc.) soportan paginación por query params:
+Los listados (`GET /usuarios`, `/cuentas`, `/movimientos`, `/transferencias`, `/criptomonedas`, `/cripto-transactions`, `/acciones`, `/accion-transactions`, `/pagos-servicios`, etc.) soportan paginación por query params:
 
 | Parámetro | Tipo | Default | Descripción |
 |-----------|------|---------|-------------|
@@ -162,7 +170,7 @@ Los listados (`GET /usuarios`, `/cuentas`, `/movimientos`, `/transferencias`, `/
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| role | string | `admin` o `final_user`. Si es `admin`, no se crean cuentas ni criptomonedas. |
+| role | string | `admin` o `final_user`. Si es `admin`, no se crean cuentas, criptomonedas ni cajas de acciones. |
 
 ---
 
@@ -223,7 +231,7 @@ $[monto]
 [Transferir]
 ```
 
-- `[MONEDA]`: ARS, USD, EUR, BRL según la cuenta origen.
+- `[MONEDA]`: ARS, USD, EUR, JPY, BRL, GBP según la cuenta origen.
 - `*****`: saldo enmascarado; el ícono de ojo (👁) alterna mostrar/ocultar.
 - Destinatario: alias o CVU de la cuenta destino (del `GET /cuentas/search`).
 
@@ -255,6 +263,117 @@ Query params:
   ...
 ]
 ```
+
+---
+
+### Monedas (tipo de cambio fiat)
+
+Vive en el mismo módulo que **`/currencies/convert`** (Frankfurter). El handler canónico es **`currenciesController.getMonedaPrices`**.
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/currencies/monedas-prices?convert=ars` | Sí | Cotización de EUR, USD, JPY, BRL y GBP |
+| GET | `/monedas/prices?convert=ars` | Sí | Alias del endpoint anterior (misma respuesta) |
+
+**GET /currencies/monedas-prices** (o **`GET /monedas/prices`**)
+
+Query params:
+- `convert` (opcional): `ars` \| `eur` \| `usd` \| `jpy` \| `brl` \| `gbp` (default: `ars`)
+
+Cada ítem expresa **cuántas unidades de `convert` equivalen a 1 unidad** de la moneda listada (misma idea que el precio de las criptos en una divisa de referencia). Si `convert` coincide con una de las cinco monedas, esa entrada lleva `price: 1`.
+
+**Respuesta 200:**
+```json
+[
+  {
+    "tipo": "eur",
+    "symbol": "EUR",
+    "name": "Euro",
+    "price": 1200.5,
+    "percentChange24h": null,
+    "lastUpdated": "2026-04-15T12:00:00.000Z"
+  },
+  ...
+]
+```
+
+Las cotizaciones provienen de la misma lógica que `/currencies/convert` (Frankfurter; mock si `MOCK=true`).
+
+---
+
+### Acciones
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/acciones` | Sí | Listar cajas de acciones (paginado). `final_user`: solo las suyas. `admin`: todas. |
+| GET | `/acciones/prices?convert=ars` | Sí | Cotización de acciones (AAPL, MSFT, GOOGL, AMZN, NVDA) |
+
+**GET /acciones**
+
+Misma forma que `GET /criptomonedas`: filas por `usuarioId` + `tipoAccion` + `monto` (cantidad de títulos).
+
+**GET /acciones/prices**
+
+Query params:
+- `convert` (opcional): `ars` \| `eur` \| `usd` \| `jpy` \| `brl` \| `gbp` (default: `ars`)
+
+Los precios se cotizan en **USD** (Finnhub) y se convierten a `convert` con la misma lógica que `/currencies/convert`. Con `MOCK=true` se usan precios USD simulados y la conversión mock de Frankfurter.
+
+**Respuesta 200:**
+```json
+[
+  {
+    "tipo": "apple",
+    "symbol": "AAPL",
+    "name": "Apple",
+    "price": 250000,
+    "percentChange24h": -0.4,
+    "lastUpdated": "2026-04-15T12:00:00.000Z"
+  },
+  ...
+]
+```
+
+| tipo | symbol | Empresa |
+|------|--------|---------|
+| `apple` | AAPL | Apple |
+| `microsoft` | MSFT | Microsoft |
+| `alphabet` | GOOGL | Alphabet |
+| `amazon` | AMZN | Amazon |
+| `nvidia` | NVDA | NVIDIA |
+
+En entorno real (`MOCK=false`) hace falta `FINNHUB_API_KEY` en `.env`.
+
+---
+
+### Transacciones de acciones
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/accion-transactions` | Sí | Listar transacciones (paginado). `final_user`: solo las de sus cuentas. `admin`: todas. |
+| GET | `/accion-transactions/:id` | Sí | Obtener una transacción |
+| POST | `/accion-transactions` | Sí | Crear transacción (compra/venta de títulos) |
+| PUT | `/accion-transactions/:id` | Sí | Actualizar transacción |
+| DELETE | `/accion-transactions/:id` | Sí | Eliminar transacción |
+
+**POST /accion-transactions:**
+```json
+{
+  "cuentaId": 1,
+  "tipoAccion": "apple",
+  "sentido": "ingreso",
+  "cantidad": "1.5"
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| cuentaId | number | ID de la cuenta (moneda fiat) |
+| tipoAccion | string | `apple`, `microsoft`, `alphabet`, `amazon`, `nvidia` |
+| sentido | string | `ingreso` (vender títulos → recibir fiat) o `egreso` (comprar títulos → pagar fiat) |
+| cantidad | string | Cantidad de acciones (ej. `"1"` o `"0.5"`) |
+
+`precioUnitario` y `monto` se calculan en el backend con la cotización actual (Finnhub en USD convertida a la moneda de la cuenta, o mock).
 
 ---
 
@@ -357,6 +476,7 @@ Query params:
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
+| GET | `/currencies/monedas-prices?convert=ars` | Sí | Listado fiat EUR/USD/JPY/BRL/GBP vs `convert` (ver sección *Monedas*) |
 | GET | `/currencies/convert?from=USD&amount=100` | Sí | Convierte un monto de una moneda a todas las demás |
 
 **Query params:**
@@ -431,8 +551,8 @@ Se crean movimientos tipo `conversion` en ambas cuentas.
 
 ## Roles
 
-- **admin**: Puede crear usuarios (`POST /usuarios`). No tiene cuentas ni criptomonedas.
-- **final_user**: Usuario estándar con cuentas, criptomonedas y transacciones.
+- **admin**: Puede crear usuarios (`POST /usuarios`). No tiene cuentas, criptomonedas ni cajas de acciones.
+- **final_user**: Usuario estándar con cuentas, criptomonedas, acciones y transacciones.
 
 El token JWT incluye `id`, `email` y `role`. El backend usa `res.locals.user` para validar permisos.
 
@@ -449,6 +569,8 @@ En los `GET` de listados, el filtro por usuario **solo se aplica si el token es 
 | Transferencias | Ve todas las transferencias | Solo transferencias donde participa (origen o destino) |
 | Criptomonedas | Ve todas las cajas | Solo sus cajas |
 | Cripto-transactions | Ve todas las transacciones | Solo transacciones de sus cuentas |
+| Acciones | Ve todas las cajas | Solo sus cajas |
+| Accion-transactions | Ve todas las transacciones | Solo transacciones de sus cuentas |
 | Tarjetas | N/A (admin sin cuentas) | Solo sus tarjetas (por sus cuentas) |
 | Pagos-servicios | Lista todos los pagos | Lista todos (filtrar por factura/cuenta si aplica) |
 
@@ -466,5 +588,7 @@ npm run mock
 
 Con `MOCK=true`:
 - `/criptomonedas/prices` devuelve precios simulados.
+- `/currencies/monedas-prices` (y el alias `/monedas/prices`) devuelve cotizaciones simuladas (EUR, USD, JPY, BRL, GBP).
+- `/acciones/prices` devuelve cotizaciones simuladas (AAPL, MSFT, GOOGL, AMZN, NVDA).
 - `/currencies/convert` devuelve tasas de cambio simuladas.
 - `/currency-conversions` usa tasas mock para las conversiones.

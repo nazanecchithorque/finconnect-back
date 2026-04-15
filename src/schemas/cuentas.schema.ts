@@ -16,7 +16,9 @@ export const monedaTypes = {
     ARS: "ARS",
     USD: "USD",
     EUR: "EUR",
-    BRL: "BRL"
+    JPY: "JPY",
+    BRL: "BRL",
+    GBP: "GBP"
 } as const;
 
 export type MonedaType =

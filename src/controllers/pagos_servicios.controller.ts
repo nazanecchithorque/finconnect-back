@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { Forbidden, newPagination, NotFound } from "bradb";
+import { desc, eq } from "drizzle-orm";
 import { db } from "../db";
+import { pagosServiciosTable } from "../schemas/pagos_servicios.schema";
+import { cuentasTable } from "../schemas/cuentas.schema";
+import { facturasTable } from "../schemas/facturas.schema";
+import { empresasServicioTable } from "../schemas/empresas_servicio.schema";
 import { pagosServiciosService } from "../services/pagos_servicios.service";
 import { pagosServiciosValidator } from "../validators/pagos_servicios.validator";
 import { facturasService } from "../services/facturas.service";
@@ -14,6 +19,31 @@ const pagarFacturaValidator = pagosServiciosValidator.insert.pick({
     facturaId: true,
     cuentaId: true
 });
+
+/** Pagos de servicio del usuario (con empresa), más recientes primero. */
+async function listMine(req: Request, res: Response) {
+    const userId = Number(res.locals.user.id);
+    const rows = await db
+        .select({
+            id: pagosServiciosTable.id,
+            monto: pagosServiciosTable.monto,
+            createdAt: pagosServiciosTable.createdAt,
+            empresaNombre: empresasServicioTable.nombre,
+            categoria: empresasServicioTable.categoria,
+        })
+        .from(pagosServiciosTable)
+        .innerJoin(cuentasTable, eq(pagosServiciosTable.cuentaId, cuentasTable.id))
+        .innerJoin(facturasTable, eq(pagosServiciosTable.facturaId, facturasTable.id))
+        .innerJoin(
+            empresasServicioTable,
+            eq(facturasTable.empresaId, empresasServicioTable.id)
+        )
+        .where(eq(cuentasTable.usuarioId, userId))
+        .orderBy(desc(pagosServiciosTable.createdAt))
+        .limit(50);
+
+    res.json({ items: rows });
+}
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
@@ -126,6 +156,7 @@ async function remove(req: Request, res: Response) {
 }
 
 export const pagosServiciosController = {
+    listMine,
     getAll,
     getOne,
     create,

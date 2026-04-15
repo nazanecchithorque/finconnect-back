@@ -26,6 +26,7 @@ export const sentidoMovimientoEnum = pgEnum("sentidoMovimiento", sentidoMovimien
 export const tipoOperacion = {
     transferencia: "transferencia",
     cripto: "cripto",
+    accion: "accion",
     pagoservicio: "pagoservicio",
     conversion: "conversion",
     otros: "otros"

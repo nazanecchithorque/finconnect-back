@@ -38,12 +38,19 @@ const baseSchema = z.object({
     // CoinMarketCap
     COINMARKETCAP_API_KEY: z.string().optional(),
 
+    /** Finnhub (cotizaciones de acciones en /acciones/prices cuando MOCK=false) */
+    FINNHUB_API_KEY: z.string().optional(),
+
     // Mock (evita llamadas a APIs externas como CoinMarketCap)
     MOCK: z
         .string()
         .optional()
         .default("false")
-        .transform((v) => v === "true")
+        .transform((v) => v === "true"),
+
+    /** URL del servicio de validación RENAPER (opcional). Si no está, solo validación local de formato. */
+    RENAPER_API_URL: z.string().optional(),
+    RENAPER_API_KEY: z.string().optional(),
 });
 
 const prodSchema = baseSchema.transform((env) => ({

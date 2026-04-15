@@ -14,6 +14,9 @@ import { criptoTransactionRouter } from "@/routes/criptoTransaction.router";
 import { pagosServiciosRouter } from "@/routes/pagos_servicios.router";
 import { currenciesRouter } from "@/routes/currencies.router";
 import { currencyConversionRouter } from "@/routes/currencyConversion.router";
+import { monedasRouter } from "@/routes/monedas.router";
+import { accionesRouter } from "@/routes/acciones.router";
+import { accionTransactionRouter } from "@/routes/accionTransaction.router";
 
 export const app = express();
 
@@ -34,6 +37,9 @@ app.use("/cripto-transactions", criptoTransactionRouter);
 app.use("/pagos-servicios", pagosServiciosRouter);
 app.use("/currencies", currenciesRouter);
 app.use("/currency-conversions", currencyConversionRouter);
+app.use("/monedas", monedasRouter);
+app.use("/acciones", accionesRouter);
+app.use("/accion-transactions", accionTransactionRouter);
 
 // Healthcheck
 app.get("/eso", (_req, res) => {

@@ -4,6 +4,9 @@ import { pagosServiciosController } from "../controllers/pagos_servicios.control
 
 export const pagosServiciosRouter = Router();
 
+// Historial del usuario autenticado (antes de /:id)
+pagosServiciosRouter.get("/mine", authMiddleware, pagosServiciosController.listMine);
+
 // Get all
 pagosServiciosRouter.get("/", authMiddleware, pagosServiciosController.getAll);
 

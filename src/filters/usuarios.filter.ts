@@ -5,6 +5,7 @@ import { usuariosValidator } from "../validators/usuarios.validator";
 
 export const usuariosFilterMap: FilterMap<typeof usuariosValidator.filter> = {
     id: (val) => eq(usuariosTable.id, val),
+	role: (val) => eq(usuariosTable.role, val),
 	nombre: (val) => eq(usuariosTable.nombre, val),
 	apellido: (val) => eq(usuariosTable.apellido, val),
 	email: (val) => eq(usuariosTable.email, val),

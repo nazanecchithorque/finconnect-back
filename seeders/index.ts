@@ -1,6 +1,7 @@
 import { seedUsuarios } from "./usuarios.seed";
 import { seedCuentas } from "./cuentas.seed";
 import { seedCriptomonedas } from "./criptomonedas.seed";
+import { seedAcciones } from "./acciones.seed";
 import { seedEmpresasServicio } from "./empresas_servicio.seed";
 import { seedFacturas } from "./facturas.seed";
 import { seedPagosServicios } from "./pagos_servicios.seed";
@@ -18,6 +19,7 @@ async function main() {
     await seedUsuarios();
     await seedCuentas();
     await seedCriptomonedas();
+    await seedAcciones();
     await seedEmpresasServicio();
     await seedFacturas();
     await seedPagosServicios();

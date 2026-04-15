@@ -61,6 +61,12 @@ export const usuariosTable = pgTable("usuarios", {
 
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
 
+    /** Código ISO corto, ej. es, en */
+    idioma: varchar("idioma", { length: 10 }).notNull().default("es"),
+
+    /** light | dark | system */
+    temaAplicacion: varchar("tema_aplicacion", { length: 20 }).notNull().default("dark"),
+
     activo: integer("activo").notNull().default(1),
 
     createdAt: timestamps.createdAt,

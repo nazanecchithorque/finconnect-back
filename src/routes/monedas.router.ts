@@ -2,16 +2,11 @@ import { Router } from "express";
 import { authMiddleware } from "@/middlewares/auth";
 import { currenciesController } from "../controllers/currencies.controller";
 
-export const currenciesRouter = Router();
+/** Alias retrocompatible: la implementación vive en `currencies` (misma API Frankfurter). */
+export const monedasRouter = Router();
 
-currenciesRouter.get(
-    "/monedas-prices",
+monedasRouter.get(
+    "/prices",
     authMiddleware,
     currenciesController.getMonedaPrices
-);
-
-currenciesRouter.get(
-    "/convert",
-    authMiddleware,
-    currenciesController.convert
 );

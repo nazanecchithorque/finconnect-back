@@ -43,6 +43,35 @@ function getMockRates(from: string, amount: number): FrankfurterLatestResponse {
 }
 
 /**
+ * Frankfurter (ECB) no cotiza ARS ni otras monedas LATAM. Si la respuesta OK viene sin ellas,
+ * completamos solo claves faltantes con el mismo modelo que el fallback mock (misma base/monto).
+ */
+function fillMissingRatesFromMock(data: FrankfurterLatestResponse): FrankfurterLatestResponse {
+    const mock = getMockRates(data.base, data.amount);
+    const merged: FrankfurterRates = { ...data.rates };
+    for (const [curr, val] of Object.entries(mock.rates)) {
+        if (merged[curr] == null || Number.isNaN(merged[curr])) {
+            merged[curr] = val;
+        }
+    }
+    return { ...data, rates: merged };
+}
+
+function filterRatesTo(
+    data: FrankfurterLatestResponse,
+    to: string[]
+): FrankfurterLatestResponse {
+    const filtered: FrankfurterRates = {};
+    for (const c of to) {
+        const key = c.toUpperCase();
+        if (data.rates[key] != null) {
+            filtered[key] = data.rates[key];
+        }
+    }
+    return { ...data, rates: filtered };
+}
+
+/**
  * Obtiene las tasas de cambio desde una moneda base.
  * Si amount y to no se pasan, devuelve el equivalente de 1 unidad en todas las monedas soportadas.
  */
@@ -74,9 +103,34 @@ export async function getExchangeRates(
         params.set("to", to.map((c) => c.toUpperCase()).join(","));
     }
     const url = `${FRANKFURTER_BASE}/latest?${params}`;
-    const res = await fetch(url);
-    if (!res.ok) {
-        throw new Error(`Frankfurter API error: ${res.status} ${res.statusText}`);
+
+    try {
+        const res = await fetch(url);
+        if (res.ok) {
+            const raw = (await res.json()) as FrankfurterLatestResponse;
+            const normalized: FrankfurterLatestResponse = {
+                ...raw,
+                base: raw.base.toUpperCase(),
+                rates: Object.fromEntries(
+                    Object.entries(raw.rates || {}).map(([k, v]) => [k.toUpperCase(), v])
+                ),
+            };
+            const filled = fillMissingRatesFromMock(normalized);
+            if (to && to.length > 0) {
+                return filterRatesTo(filled, to);
+            }
+            return filled;
+        }
+        console.warn(
+            `Frankfurter ${res.status} ${res.statusText} (${url}) — usando tasas mock (p. ej. ARS no está en ECB/Frankfurter)`
+        );
+    } catch (err) {
+        console.warn("Frankfurter fetch falló, usando tasas mock:", err);
     }
-    return res.json() as Promise<FrankfurterLatestResponse>;
+
+    const mock = getMockRates(from, amount);
+    if (to && to.length > 0) {
+        return filterRatesTo(mock, to);
+    }
+    return mock;
 }

@@ -1,33 +1,33 @@
 import { Request, Response, NextFunction } from "express";
-import { getCriptoPreciosPorTipo } from "@/lib/criptomonedas";
-import { userRoles } from "@/schemas/usuarios.schema";
 import { newPagination } from "bradb";
-import { criptomonedasValidator } from "@/validators/criptomonedas.validator";
-import { criptomonedasService } from "@/services/criptomonedas.service";
+import { getAccionPreciosPorTipo } from "@/lib/acciones";
+import { userRoles } from "@/schemas/usuarios.schema";
+import { accionesValidator } from "@/validators/acciones.validator";
+import { accionesService } from "@/services/acciones.service";
 import { parseConvertQuery } from "@/validators/convertQuery.validator";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
-    const filters = criptomonedasValidator.filter.parse(req.query);
+    const filters = accionesValidator.filter.parse(req.query);
     const baseFilters = { ...filters };
     if (res.locals.user.role === userRoles.finalUser) {
         (baseFilters as Record<string, unknown>).usuarioId = res.locals.user.id;
     }
-    const items = await criptomonedasService.findAll(baseFilters, pagination);
+    const items = await accionesService.findAll(baseFilters, pagination);
 
     res.json({
         pagination,
         items,
-        total: pagination.total // this is going to be removed
+        total: pagination.total
     });
 }
 
-export const criptomonedasController = {
+export const accionesController = {
     getAll,
-    async getCriptoPrices(req: Request, res: Response, next: NextFunction) {
+    async getAccionPrices(req: Request, res: Response, next: NextFunction) {
         try {
             const convert = parseConvertQuery(req.query.convert);
-            const precios = await getCriptoPreciosPorTipo(convert);
+            const precios = await getAccionPreciosPorTipo(convert);
             return res.json(precios);
         } catch (error) {
             next(error);
