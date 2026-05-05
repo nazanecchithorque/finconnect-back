@@ -71,5 +71,8 @@ export const tarjetasTable = pgTable("tarjetas", {
 
     activo: boolean("activo").notNull().default(true),
 
+    /** PAN completo (solo demo). No se incluye en el listado; sí en GET /:id autorizado. */
+    numeroPan: varchar("numero_pan", { length: 16 }),
+
     ...timestamps
 });

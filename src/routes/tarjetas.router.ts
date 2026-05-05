@@ -10,6 +10,9 @@ tarjetasRouter.get("/", authMiddleware, tarjetasController.getAllByUser);
 // Crear tarjeta para una cuenta del usuario
 tarjetasRouter.post("/", authMiddleware, tarjetasController.create);
 
+// Detalle (incluye número completo para titular)
+tarjetasRouter.get("/:id", authMiddleware, tarjetasController.getById);
+
 // Bloquear tarjeta (definitivo)
 tarjetasRouter.post(
     "/:id/bloquear",

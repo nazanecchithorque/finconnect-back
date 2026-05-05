@@ -67,6 +67,7 @@ export async function seedTarjetas() {
         tarjetasSeed.push({
             cuentaId: cuenta.id,
             ultimos4,
+            numeroPan: numeroCompleto,
             tipo: "VIRTUAL",
             marca: marcaTarjeta.mastercard,
             estado: estadoTarjeta.activa,

@@ -193,7 +193,7 @@ export const authService = {
             })
             .returning();
 
-        const monedas = ["ARS", "USD", "EUR", "JPY", "BRL", "GBP"] as const;
+        const monedas = ["ARS", "USD", "EUR", "BRL"] as const;
 
         for (const moneda of monedas) {
             await db.insert(cuentasTable).values({

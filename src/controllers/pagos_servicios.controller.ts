@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Forbidden, newPagination, NotFound } from "bradb";
 import { desc, eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "../db";
 import { pagosServiciosTable } from "../schemas/pagos_servicios.schema";
 import { cuentasTable } from "../schemas/cuentas.schema";
@@ -14,11 +15,41 @@ import { movimientosService } from "../services/movimientos.service";
 import { empresasServicioService } from "../services/empresas_servicio.service";
 import { estadoFactura } from "../schemas/facturas.schema";
 import { sentidoMovimiento, tipoOperacion } from "../schemas/movimientos.schema";
+import { categoriaEmpresaServicio } from "../schemas/empresas_servicio.schema";
 
-const pagarFacturaValidator = pagosServiciosValidator.insert.pick({
-    facturaId: true,
-    cuentaId: true
-});
+const pagarFacturaValidator = z
+    .object({
+        facturaId: z.coerce.number().int().positive().optional(),
+        cuentaId: z.coerce.number().int().positive(),
+        barcode: z
+            .object({
+                codigoEnte: z.string().trim().min(1).optional(),
+                nombreEnte: z.string().trim().min(1).optional(),
+                referencia: z.string().trim().min(1).optional(),
+                monto: z.coerce.number().positive().optional()
+            })
+            .optional()
+    })
+    .refine((v) => v.facturaId !== undefined || v.barcode !== undefined, {
+        message: "Debes enviar facturaId o barcode para pagar."
+    });
+
+function deducirCategoriaDesdeNombreOCodigo(
+    nombre: string | undefined,
+    codigo: string | undefined
+) {
+    const n = (nombre ?? "").toLowerCase();
+    const c = (codigo ?? "").replace(/\D/g, "");
+    if (n.includes("agua") || c === "5304") return categoriaEmpresaServicio.agua;
+    if (n.includes("luz") || n.includes("energia") || n.includes("electric")) {
+        return categoriaEmpresaServicio.luz;
+    }
+    if (n.includes("internet") || n.includes("fibra") || n.includes("wifi")) {
+        return categoriaEmpresaServicio.internet;
+    }
+    if (n.includes("stream")) return categoriaEmpresaServicio.streaming;
+    return categoriaEmpresaServicio.otros;
+}
 
 /** Pagos de servicio del usuario (con empresa), más recientes primero. */
 async function listMine(req: Request, res: Response) {
@@ -66,8 +97,56 @@ async function getOne(req: Request, res: Response) {
 async function create(req: Request, res: Response) {
     const data = pagarFacturaValidator.parse(req.body);
     const usuario = res.locals.user;
+    const barcode = data.barcode;
 
-    const factura = await facturasService.findOne({ id: data.facturaId });
+    let factura;
+    if (data.facturaId !== undefined) {
+        factura = await facturasService.findOne({ id: data.facturaId });
+    } else {
+        if (!barcode) {
+            throw new Forbidden("Faltan datos para pagar el servicio");
+        }
+        const codigo = (barcode.codigoEnte ?? "").replace(/\D/g, "").slice(0, 12);
+        const nombre = (barcode.nombreEnte ?? "").trim() || "Servicio escaneado";
+        const categoria = deducirCategoriaDesdeNombreOCodigo(nombre, codigo);
+        const monto = barcode.monto;
+        if (!Number.isFinite(monto) || Number(monto) <= 0) {
+            throw new Forbidden("Monto inválido en el código escaneado");
+        }
+
+        let empresa: { id: number; nombre: string } | null = null;
+        if (codigo.length > 0) {
+            const [empresaRow] = await db
+                .select({ id: empresasServicioTable.id, nombre: empresasServicioTable.nombre })
+                .from(empresasServicioTable)
+                .where(eq(empresasServicioTable.codigo, codigo));
+            empresa = empresaRow ?? null;
+        }
+        if (!empresa) {
+            const codigoNuevo =
+                codigo.length > 0
+                    ? codigo
+                    : `9${String(Date.now()).slice(-11)}`;
+            const creada = await empresasServicioService.create({
+                codigo: codigoNuevo,
+                nombre,
+                categoria
+            });
+            empresa = { id: Number(creada.id), nombre: creada.nombre };
+        }
+
+        factura = await facturasService.create({
+            usuarioId: Number(usuario.id),
+            empresaId: empresa.id,
+            monto: Number(monto).toFixed(2),
+            vencimiento: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            estado: estadoFactura.pendiente
+        });
+    }
+
+    if (!factura) {
+        throw new NotFound("Factura no encontrada");
+    }
 
     if (Number(factura.usuarioId) !== Number(usuario.id)) {
         throw new Forbidden("No tenes permisos para pagar esta factura");

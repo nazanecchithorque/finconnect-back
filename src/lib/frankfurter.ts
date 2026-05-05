@@ -15,14 +15,12 @@ export interface FrankfurterLatestResponse {
 const MOCK_RATES_FROM_USD: Record<string, number> = {
     USD: 1,
     EUR: 0.87,
-    GBP: 0.75,
     BRL: 5.3,
     ARS: 1000,
     AUD: 1.43,
     CAD: 1.37,
     CHF: 0.79,
     CNY: 6.9,
-    JPY: 159,
     MXN: 17.9,
 };
 
@@ -43,16 +41,30 @@ function getMockRates(from: string, amount: number): FrankfurterLatestResponse {
 }
 
 /**
- * Frankfurter (ECB) no cotiza ARS ni otras monedas LATAM. Si la respuesta OK viene sin ellas,
- * completamos solo claves faltantes con el mismo modelo que el fallback mock (misma base/monto).
+ * Frankfurter (ECB) no cotiza ARS. Completamos faltantes con el mock y
+ * **siempre** sobrescribimos ARS cuando la base no es ARS, para no mezclar
+ * con valores espurios o con un `data.amount` desalineado del pedido del cliente.
  */
-function fillMissingRatesFromMock(data: FrankfurterLatestResponse): FrankfurterLatestResponse {
-    const mock = getMockRates(data.base, data.amount);
+function fillMissingRatesFromMock(
+    data: FrankfurterLatestResponse,
+    requestAmount: number
+): FrankfurterLatestResponse {
+    const amt =
+        Number.isFinite(requestAmount) && requestAmount > 0
+            ? requestAmount
+            : Number.isFinite(data.amount) && data.amount > 0
+              ? data.amount
+              : 1;
+    const mock = getMockRates(data.base, amt);
     const merged: FrankfurterRates = { ...data.rates };
     for (const [curr, val] of Object.entries(mock.rates)) {
         if (merged[curr] == null || Number.isNaN(merged[curr])) {
             merged[curr] = val;
         }
+    }
+    const baseU = data.base.toUpperCase();
+    if (baseU !== "ARS" && mock.rates.ARS != null && Number.isFinite(mock.rates.ARS)) {
+        merged.ARS = mock.rates.ARS;
     }
     return { ...data, rates: merged };
 }
@@ -115,7 +127,7 @@ export async function getExchangeRates(
                     Object.entries(raw.rates || {}).map(([k, v]) => [k.toUpperCase(), v])
                 ),
             };
-            const filled = fillMissingRatesFromMock(normalized);
+            const filled = fillMissingRatesFromMock(normalized, amount);
             if (to && to.length > 0) {
                 return filterRatesTo(filled, to);
             }

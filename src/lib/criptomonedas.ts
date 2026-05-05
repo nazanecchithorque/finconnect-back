@@ -44,18 +44,6 @@ const MOCK_PRECIOS: Record<
         xrp: { price: 0.56, percentChange24h: 0.5 },
         dogecoin: { price: 0.42, percentChange24h: -4.2 }
     },
-    JPY: {
-        bitcoin: { price: 15_000_000, percentChange24h: -2.5 },
-        ethereum: { price: 460_000, percentChange24h: -1.8 },
-        usdt: { price: 155, percentChange24h: 0.1 },
-        solana: { price: 19_000, percentChange24h: -3.2 },
-        cardano: { price: 185, percentChange24h: 1.5 },
-        polkadot: { price: 1_320, percentChange24h: -0.9 },
-        avalanche: { price: 7_000, percentChange24h: 2.1 },
-        binance: { price: 93_000, percentChange24h: -1.2 },
-        xrp: { price: 93, percentChange24h: 0.5 },
-        dogecoin: { price: 70, percentChange24h: -4.2 }
-    },
     BRL: {
         bitcoin: { price: 490_000, percentChange24h: -2.5 },
         ethereum: { price: 15_000, percentChange24h: -1.8 },
@@ -67,18 +55,6 @@ const MOCK_PRECIOS: Record<
         binance: { price: 3_000, percentChange24h: -1.2 },
         xrp: { price: 3, percentChange24h: 0.5 },
         dogecoin: { price: 2.25, percentChange24h: -4.2 }
-    },
-    GBP: {
-        bitcoin: { price: 78_000, percentChange24h: -2.5 },
-        ethereum: { price: 2_400, percentChange24h: -1.8 },
-        usdt: { price: 0.8, percentChange24h: 0.1 },
-        solana: { price: 100, percentChange24h: -3.2 },
-        cardano: { price: 0.96, percentChange24h: 1.5 },
-        polkadot: { price: 6.8, percentChange24h: -0.9 },
-        avalanche: { price: 36, percentChange24h: 2.1 },
-        binance: { price: 480, percentChange24h: -1.2 },
-        xrp: { price: 0.48, percentChange24h: 0.5 },
-        dogecoin: { price: 0.36, percentChange24h: -4.2 }
     }
 };
 
@@ -236,12 +212,12 @@ export async function getCriptoPrecios(
 }
 
 /** Monedas soportadas para conversión */
-export const CONVERT_OPTIONS = ["ARS", "EUR", "USD", "JPY", "BRL", "GBP"] as const;
+export const CONVERT_OPTIONS = ["ARS", "EUR", "USD", "BRL"] as const;
 export type ConvertOption = (typeof CONVERT_OPTIONS)[number];
 
 /**
  * Obtiene precios para los tipos de cripto del schema.
- * @param convert Moneda de conversión (ARS, EUR, USD, JPY, BRL, GBP)
+ * @param convert Moneda de conversión (ARS, EUR, USD, BRL)
  */
 export async function getCriptoPreciosPorTipo(
     convert: ConvertOption = "ARS"

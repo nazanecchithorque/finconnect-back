@@ -7,6 +7,7 @@ export const empresasServicioFilterMap: FilterMap<
     typeof empresasServicioValidator.filter
 > = {
     id: (val) => eq(empresasServicioTable.id, val),
+    codigo: (val) => eq(empresasServicioTable.codigo, val),
     nombre: (val) => eq(empresasServicioTable.nombre, val),
     categoria: (val) => eq(empresasServicioTable.categoria, val),
     createdAt: (val) => eq(empresasServicioTable.createdAt, val),

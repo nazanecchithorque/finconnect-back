@@ -231,7 +231,7 @@ $[monto]
 [Transferir]
 ```
 
-- `[MONEDA]`: ARS, USD, EUR, JPY, BRL, GBP según la cuenta origen.
+- `[MONEDA]`: ARS, USD, EUR, BRL según la cuenta origen.
 - `*****`: saldo enmascarado; el ícono de ojo (👁) alterna mostrar/ocultar.
 - Destinatario: alias o CVU de la cuenta destino (del `GET /cuentas/search`).
 
@@ -247,7 +247,7 @@ $[monto]
 **GET /criptomonedas/prices**
 
 Query params:
-- `convert` (opcional): `ars` | `eur` | `usd` | `jpy` | `brl` | `gbp` (default: `ars`)
+- `convert` (opcional): `ars` | `eur` | `usd` | `brl` (default: `ars`)
 
 **Respuesta 200:**
 ```json
@@ -272,15 +272,15 @@ Vive en el mismo módulo que **`/currencies/convert`** (Frankfurter). El handler
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/currencies/monedas-prices?convert=ars` | Sí | Cotización de EUR, USD, JPY, BRL y GBP |
+| GET | `/currencies/monedas-prices?convert=ars` | Sí | Cotización de EUR, USD y BRL |
 | GET | `/monedas/prices?convert=ars` | Sí | Alias del endpoint anterior (misma respuesta) |
 
 **GET /currencies/monedas-prices** (o **`GET /monedas/prices`**)
 
 Query params:
-- `convert` (opcional): `ars` \| `eur` \| `usd` \| `jpy` \| `brl` \| `gbp` (default: `ars`)
+- `convert` (opcional): `ars` \| `eur` \| `usd` \| `brl` (default: `ars`)
 
-Cada ítem expresa **cuántas unidades de `convert` equivalen a 1 unidad** de la moneda listada (misma idea que el precio de las criptos en una divisa de referencia). Si `convert` coincide con una de las cinco monedas, esa entrada lleva `price: 1`.
+Cada ítem expresa **cuántas unidades de `convert` equivalen a 1 unidad** de la moneda listada (misma idea que el precio de las criptos en una divisa de referencia). Si `convert` coincide con una de las tres monedas, esa entrada lleva `price: 1`.
 
 **Respuesta 200:**
 ```json
@@ -315,7 +315,7 @@ Misma forma que `GET /criptomonedas`: filas por `usuarioId` + `tipoAccion` + `mo
 **GET /acciones/prices**
 
 Query params:
-- `convert` (opcional): `ars` \| `eur` \| `usd` \| `jpy` \| `brl` \| `gbp` (default: `ars`)
+- `convert` (opcional): `ars` \| `eur` \| `usd` \| `brl` (default: `ars`)
 
 Los precios se cotizan en **USD** (Finnhub) y se convierten a `convert` con la misma lógica que `/currencies/convert`. Con `MOCK=true` se usan precios USD simulados y la conversión mock de Frankfurter.
 
@@ -476,11 +476,11 @@ En entorno real (`MOCK=false`) hace falta `FINNHUB_API_KEY` en `.env`.
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/currencies/monedas-prices?convert=ars` | Sí | Listado fiat EUR/USD/JPY/BRL/GBP vs `convert` (ver sección *Monedas*) |
+| GET | `/currencies/monedas-prices?convert=ars` | Sí | Listado fiat EUR/USD/BRL vs `convert` (ver sección *Monedas*) |
 | GET | `/currencies/convert?from=USD&amount=100` | Sí | Convierte un monto de una moneda a todas las demás |
 
 **Query params:**
-- `from` (requerido): Código de moneda origen (USD, EUR, GBP, BRL, etc.)
+- `from` (requerido): Código de moneda origen (USD, EUR, BRL, etc.)
 - `amount` (opcional): Monto a convertir (default: 1)
 
 **Respuesta 200:**
@@ -491,7 +491,6 @@ En entorno real (`MOCK=false`) hace falta `FINNHUB_API_KEY` en `.env`.
   "date": "2026-03-19",
   "rates": {
     "EUR": 87.04,
-    "GBP": 75.19,
     "BRL": 529.87,
     "ARS": 95000,
     ...
@@ -588,7 +587,7 @@ npm run mock
 
 Con `MOCK=true`:
 - `/criptomonedas/prices` devuelve precios simulados.
-- `/currencies/monedas-prices` (y el alias `/monedas/prices`) devuelve cotizaciones simuladas (EUR, USD, JPY, BRL, GBP).
+- `/currencies/monedas-prices` (y el alias `/monedas/prices`) devuelve cotizaciones simuladas (EUR, USD, BRL).
 - `/acciones/prices` devuelve cotizaciones simuladas (AAPL, MSFT, GOOGL, AMZN, NVDA).
 - `/currencies/convert` devuelve tasas de cambio simuladas.
 - `/currency-conversions` usa tasas mock para las conversiones.

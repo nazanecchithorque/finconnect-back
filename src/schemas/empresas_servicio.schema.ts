@@ -29,6 +29,9 @@ export const categoriaEmpresaServicioEnum = pgEnum(
 export const empresasServicioTable = pgTable("empresas_servicio", {
     id: serial("id").primaryKey(),
 
+    /** Código de referencia recaudación (p. ej. prefijo 4 dígitos Coelsa). Único. */
+    codigo: varchar("codigo", { length: 12 }).notNull().unique(),
+
     nombre: varchar("nombre", { length: 120 }).notNull(),
 
     categoria: categoriaEmpresaServicioEnum("categoria").notNull(),

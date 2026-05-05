@@ -2,15 +2,13 @@ import { getExchangeRates } from "@/lib/frankfurter";
 import type { ConvertOption } from "@/lib/criptomonedas";
 
 /** Monedas fiat listadas (tipo de cambio respecto a `convert`) */
-export const FIAT_SYMBOLS = ["EUR", "USD", "JPY", "BRL", "GBP"] as const;
+export const FIAT_SYMBOLS = ["EUR", "USD", "BRL"] as const;
 export type FiatSymbol = (typeof FIAT_SYMBOLS)[number];
 
 const FIAT_NAMES: Record<FiatSymbol, string> = {
     EUR: "Euro",
     USD: "Dólar estadounidense",
-    JPY: "Yen japonés",
-    BRL: "Real brasileño",
-    GBP: "Libra esterlina"
+    BRL: "Real brasileño"
 };
 
 export type MonedaPrecio = {

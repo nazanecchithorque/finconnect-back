@@ -76,6 +76,7 @@ async function create(req: Request, res: Response) {
         ...data,
         marca: marcaTarjeta.mastercard,
         ultimos4,
+        numeroPan: numeroCompleto,
         tipo: "VIRTUAL",
         estado: estadoTarjeta.activa,
         fechaEmision,
@@ -111,7 +112,28 @@ async function getAllByUser(req: Request, res: Response) {
 
     const items = tarjetasPorCuenta.flat();
 
-    res.json(items);
+    const sinPan = items.map(({ numeroPan: _n, ...rest }) => rest);
+    res.json(sinPan);
+}
+
+async function getById(req: Request, res: Response) {
+    const pk = tarjetasValidator.pk.parse(req.params);
+    const usuario = res.locals.user;
+
+    const tarjeta = await tarjetasService.findOne(pk);
+    const cuenta = await cuentasService.findOne({ id: tarjeta.cuentaId });
+
+    if (Number(cuenta.usuarioId) !== Number(usuario.id)) {
+        throw new Forbidden("No tenés permisos para ver esta tarjeta");
+    }
+
+    const { numeroPan, ...safe } = tarjeta as typeof tarjeta & {
+        numeroPan?: string | null;
+    };
+    res.json({
+        ...safe,
+        numeroCompleto: numeroPan ?? undefined
+    });
 }
 
 async function parar(req: Request, res: Response) {
@@ -187,6 +209,7 @@ async function remove(req: Request, res: Response) {
 export const tarjetasController = {
     create,
     getAllByUser,
+    getById,
     bloquear,
     parar,
     remove
