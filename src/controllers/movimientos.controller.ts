@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import { newPagination } from "bradb";
+import { Forbidden, newPagination, NotFound } from "bradb";
 import { movimientosService } from "../services/movimientos.service"
 import { movimientosValidator } from "../validators/movimientos.validator";
 import { userRoles } from "@/schemas/usuarios.schema";
+import { cuentasService } from "@/services/cuentas.service";
 
 async function getAll(req: Request, res: Response) {
     const pagination = newPagination(req.query);
@@ -23,7 +24,23 @@ async function getAll(req: Request, res: Response) {
 async function getOne(req: Request, res: Response) {
     const pk = movimientosValidator.pk.parse(req.params);
     const item = await movimientosService.findOne(pk);
-    res.json(item);
+    if (!item) {
+        throw new NotFound("Movimiento no encontrado");
+    }
+    const cuenta = await cuentasService.findOne({ id: item.cuentaId });
+    if (!cuenta) {
+        throw new NotFound("Movimiento no encontrado");
+    }
+    if (res.locals.user.role === userRoles.finalUser) {
+        if (Number(cuenta.usuarioId) !== Number(res.locals.user.id)) {
+            throw new Forbidden("No tenés permiso para ver este movimiento");
+        }
+    }
+    res.json({
+        ...item,
+        moneda: cuenta.moneda,
+        cuentaAlias: cuenta.alias,
+    });
 }
 
 

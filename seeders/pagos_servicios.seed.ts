@@ -67,6 +67,14 @@ export async function seedPagosServicios() {
                 .set({ saldo: saldoPosterior })
                 .where(eq(cuentasTable.id, cuentaFresh.id));
 
+            const vtoStr = factura.vencimiento
+                ? new Date(factura.vencimiento).toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                  })
+                : "s/f";
+
             await tx.insert(movimientosTable).values({
                 cuentaId: cuentaFresh.id,
                 tipoOperacion: tipoOperacion.pagoservicio,
@@ -74,7 +82,7 @@ export async function seedPagosServicios() {
                 sentido: sentidoMovimiento.egreso,
                 monto: factura.monto,
                 saldoPosterior,
-                descripcion: `Pago ${empresa.nombre}`,
+                descripcion: `Pago servicio ${empresa.nombre} · Factura #${factura.id} · venc. ${vtoStr}`,
             });
 
             await tx.insert(pagosServiciosTable).values({

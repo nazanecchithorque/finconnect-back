@@ -23,7 +23,8 @@ const select = () =>
             usuarioId: cuentasTable.usuarioId,
             usuarioNombre: usuariosTable.nombre,
             usuarioApellido: usuariosTable.apellido,
-            usuarioEmail: usuariosTable.email
+            usuarioEmail: usuariosTable.email,
+            moneda: cuentasTable.moneda,
         })
         .from(movimientosTable)
         .leftJoin(

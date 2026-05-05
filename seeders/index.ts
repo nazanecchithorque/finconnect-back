@@ -6,6 +6,7 @@ import { seedEmpresasServicio } from "./empresas_servicio.seed";
 import { seedFacturas } from "./facturas.seed";
 import { seedPagosServicios } from "./pagos_servicios.seed";
 import { seedTransferencias } from "./transferencias.seed";
+import { seedMovimientosMisc } from "./movimientos_misc.seed";
 import { seedTarjetas } from "./tarjetas.seed";
 import { db } from "../src/db";
 import { getTableName } from "drizzle-orm";
@@ -24,6 +25,7 @@ async function main() {
     await seedFacturas();
     await seedPagosServicios();
     await seedTransferencias();
+    await seedMovimientosMisc();
     await seedTarjetas();
     process.exit(0);
 }

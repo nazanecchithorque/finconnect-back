@@ -53,14 +53,16 @@ export async function seedTarjetas() {
     const cuentasPorUsuario = cuentas.filter((c) =>
         usuarios.some((u) => u.id === c.usuarioId)
     );
-    const cuentasActivas = cuentasPorUsuario.filter((c) => c.activo);
+    const cuentasActivasArs = cuentasPorUsuario.filter(
+        (c) => c.activo && c.moneda === "ARS"
+    );
 
     const tarjetasSeed: TarjetaInsert[] = [];
     const fechaEmision = new Date();
     const fechaVencimiento = new Date(fechaEmision);
     fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 5);
 
-    for (const cuenta of cuentasActivas) {
+    for (const cuenta of cuentasActivasArs) {
         const numeroCompleto = generarPan16Mastercard();
         const ultimos4 = numeroCompleto.slice(-4);
 

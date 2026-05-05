@@ -7,6 +7,11 @@ import { userRoles } from "../src/schemas/usuarios.schema";
 
 type AccionInsert = InferInsertModel<typeof accionesTable>;
 
+function cantidadTitulosSimulada(): string {
+    const r = Math.random();
+    return (r * 85 + 0.25).toFixed(4);
+}
+
 export async function seedAcciones() {
     await resetIdentity(accionesTable);
     const usuariosDb = await db.select().from(usuariosTable);
@@ -19,7 +24,7 @@ export async function seedAcciones() {
             rows.push({
                 usuarioId: usuario.id,
                 tipoAccion,
-                monto: "0"
+                monto: cantidadTitulosSimulada(),
             });
         }
     }

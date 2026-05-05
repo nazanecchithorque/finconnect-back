@@ -60,23 +60,23 @@ export async function seedFacturas() {
         await db.insert(facturasTable).values(facturasSeed);
     }
 
-    // Facturas extra para usuario 52 (servicios para pagar)
-    const [usuario52] = await db
+    /* Facturas extra para usuario demo (user@gmail.com) — útil para probar pagos en app */
+    const [usuarioDemo] = await db
         .select()
         .from(usuariosTable)
-        .where(eq(usuariosTable.id, 52));
-    if (usuario52 && empresas.length > 0) {
-        const facturasUsuario52: FacturaInsert[] = empresas.slice(0, 10).map((empresa, i) => {
+        .where(eq(usuariosTable.email, "user@gmail.com"));
+    if (usuarioDemo && empresas.length > 0) {
+        const facturasDemo: FacturaInsert[] = empresas.slice(0, 12).map((empresa, i) => {
             const vencimiento = new Date(ahora);
-            vencimiento.setDate(vencimiento.getDate() + 15 + i);
+            vencimiento.setDate(vencimiento.getDate() + 10 + i * 3);
             return {
-                usuarioId: 52,
+                usuarioId: usuarioDemo.id,
                 empresaId: empresa.id,
-                monto: (800 + i * 200).toString(),
+                monto: (1_200 + i * 350).toString(),
                 vencimiento,
                 estado: estadoFactura.pendiente,
             };
         });
-        await db.insert(facturasTable).values(facturasUsuario52);
+        await db.insert(facturasTable).values(facturasDemo);
     }
 }
